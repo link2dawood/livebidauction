@@ -1,0 +1,159 @@
+.grid-padding {
+	margin-bottom: 15px;
+}
+.grid-margin-btm {
+	margin-bottom: 3px;
+}
+.grid-margin-btm-md {
+	margin-bottom: 5px;
+}
+.grid-margin-btm-lg {
+	margin-bottom: 10px;
+}
+.grid-margin-top-sm {
+	margin-top: 3px;
+}
+.grid-margin-top-md {
+	margin-top: 5px;
+}
+.grid-margin-top-lg {
+	margin-top: 10px;
+}
+.grid-margin-top-xs {
+	margin-top: 15px;
+}
+.sm-padding {
+	padding: 3px 5px;
+}
+.md-padding {
+	padding: 7px;
+}
+.lg-padding {
+	padding: 10px;
+}
+.md-padding-top {
+	padding: 7px 0 0 0;
+}
+.row.header {
+	margin-top: 10px;
+}
+.nav-margin-top {
+	margin-top: 50px;
+}
+.brand-logo {
+	padding: 2px 0 0 15px;
+}
+
+.row .row-border {
+    border-bottom: 1px solid #ddd;
+    padding: 5px;
+}
+.body-login {
+    background-color: #4b4b4b;
+}
+.login-panel {
+    margin-top: 25%;
+}
+
+.white-box {
+    background: #fff;
+    padding: 15px 25px;
+    margin-bottom: 30px;
+    border: 1px solid #d7caca;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);;
+}
+.white-box .box-title {
+    margin: 0 0 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+.white-box ul {
+    margin-bottom: 0;
+}
+.two-part li {
+    width: 48.8%;
+}
+.two-part li span {
+    font-size: 28px;
+    font-weight: 100;
+    font-family: Rubik,sans-serif;
+}
+
+.footer {
+    padding: 15px;
+    color: #c3b9b9;
+    border-top: 1px solid #d2d6de;
+}
+
+
+
+/* adjust forms in register, front page login */
+.register-date select {
+	width: 49%;
+	height: 34px;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857;
+	color: #555;
+	background-color: #FFF;
+	background-image: none;
+	border: 1px solid #CCC;
+	border-radius: 4px;
+	display: inline-block;
+	margin-bottom: 2px;
+}
+.category select,
+.secondcat select {
+	width: 100%;
+	height: 34px;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857;
+	color: #555;
+	background-color: #FFF;
+	background-image: none;
+	border: 1px solid #CCC;
+	border-radius: 4px;
+	display: inline-block;
+}
+.register-date select.missing {
+	border-color: #A94442;
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+
+
+
+/* Media Queries */
+/* Extra small devices (phones, less than 768px) */
+@media (max-width: 768px) {
+#page-wrapper {
+    padding-top: 20px;
+}
+
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+
+
+}
+
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+
+
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+}
+
+@-moz-document url-prefix() {
+	fieldset {
+		display: table-cell;
+	}
+} 

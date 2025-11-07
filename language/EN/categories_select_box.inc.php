@@ -1,0 +1,15 @@
+	<option value="0">All categories</option>
+	<option value="0">----------------------</option>
+	<option value="351"></option>
+	<option value="213">Bullion Coins</option>
+	<option value="211">Cents and Half-Cents</option>
+	<option value="212">Colonials</option>
+	<option value="214">Commemoratives</option>
+	<option value="208">Dimes and Half-Dimes</option>
+	<option value="205">Dollars</option>
+	<option value="203">Gold</option>
+	<option value="341">Half Dollars</option>
+	<option value="209">Nickels</option>
+	<option value="352">Other Items</option>
+	<option value="207">Quarters</option>
+	<option value="210">Two and Three Cents</option>

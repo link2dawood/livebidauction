@@ -1,0 +1,47 @@
+[18-Jan-2020 06:51:25 UTC] PHP Parse error:  syntax error, unexpected '?' in /home/lba/public_html/cron.php on line 710
+[18-Jan-2020 06:53:12 UTC] PHP Parse error:  syntax error, unexpected '?' in /home/lba/public_html/cron.php on line 710
+[18-Jan-2020 06:54:13 UTC] PHP Parse error:  syntax error, unexpected '?' in /home/lba/public_html/cron.php on line 710
+[28-Apr-2021 03:55:25 UTC] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'livebroa_auction'@'localhost' (using password: YES) in /home/lba/public_html/admin/edit_livestream.php on line 8
+[26-Jan-2025 10:01:45 America/Los_Angeles] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in /home/livebidauction/public_html/admin/newuser.php:200
+Stack trace:
+#0 {main}
+  thrown in /home/livebidauction/public_html/admin/newuser.php on line 200
+[26-Jan-2025 18:10:05 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/livebidauction/public_html/admin/newuser.php on line 179
+[26-Jan-2025 18:10:11 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/livebidauction/public_html/admin/newuser.php on line 179
+[26-Jan-2025 18:14:04 UTC] PHP Parse error:  syntax error, unexpected '}', expecting end of file in /home/livebidauction/public_html/admin/newuser.php on line 179
+[01-Feb-2025 10:53:10 America/New_York] PHP Warning:  mysqli::__construct(): The server requested authentication method unknown to the client [caching_sha2_password] in /home/livebidauction/public_html/admin/edit_livestream.php on line 8
+[01-Feb-2025 10:53:10 America/New_York] PHP Warning:  mysqli::__construct(): (HY000/2054): The server requested authentication method unknown to the client in /home/livebidauction/public_html/admin/edit_livestream.php on line 8
+[01-Feb-2025 11:27:32 America/New_York] PHP Warning:  mysqli::__construct(): The server requested authentication method unknown to the client [caching_sha2_password] in /home/livebidauction/public_html/admin/edit_livestream.php on line 8
+[01-Feb-2025 11:27:32 America/New_York] PHP Warning:  mysqli::__construct(): (HY000/2054): The server requested authentication method unknown to the client in /home/livebidauction/public_html/admin/edit_livestream.php on line 8
+[01-Feb-2025 22:12:39 America/New_York] PHP Warning:  mysqli::__construct(): The server requested authentication method unknown to the client [caching_sha2_password] in /home/livebidauction/public_html/admin/edit_livestream.php on line 8
+[01-Feb-2025 22:12:39 America/New_York] PHP Warning:  mysqli::__construct(): (HY000/2054): The server requested authentication method unknown to the client in /home/livebidauction/public_html/admin/edit_livestream.php on line 8
+[04-Mar-2025 22:28:48 America/Los_Angeles] PHP Parse error:  syntax error, unexpected 'common' (T_STRING) in /home/livebidauction/public_html/admin/bid.php on line 31
+[04-Mar-2025 22:30:30 America/Los_Angeles] PHP Parse error:  syntax error, unexpected 'common' (T_STRING) in /home/livebidauction/public_html/admin/bid.php on line 31
+[04-Mar-2025 22:32:06 America/Los_Angeles] PHP Parse error:  syntax error, unexpected '';' (T_CONSTANT_ENCAPSED_STRING) in /home/livebidauction/public_html/admin/bid.php on line 695
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  include(common.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 18
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  include(common.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 18
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  include(): Failed opening 'common.php' for inclusion (include_path='.:/opt/cpanel/ea-php72/root/usr/share/pear') in /home/livebidauction/public_html/admin/bid.php on line 18
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  Use of undefined constant INCLUDE_PATH - assumed 'INCLUDE_PATH' (this will throw an Error in a future version of PHP) in /home/livebidauction/public_html/admin/bid.php on line 19
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHdatacheck.inc.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 19
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHdatacheck.inc.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 19
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Warning:  include(): Failed opening 'INCLUDE_PATHdatacheck.inc.php' for inclusion (include_path='.:/opt/cpanel/ea-php72/root/usr/share/pear') in /home/livebidauction/public_html/admin/bid.php on line 19
+[04-Mar-2025 22:32:38 America/Los_Angeles] PHP Fatal error:  Uncaught Error: Call to a member function checkAuth() on null in /home/livebidauction/public_html/admin/bid.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/livebidauction/public_html/admin/bid.php on line 27
+[04-Mar-2025 22:33:25 America/Los_Angeles] PHP Parse error:  syntax error, unexpected 'common' (T_STRING) in /home/livebidauction/public_html/admin/bid.php on line 31
+[04-Mar-2025 22:34:35 America/Los_Angeles] PHP Warning:  Use of undefined constant INCLUDE_PATH - assumed 'INCLUDE_PATH' (this will throw an Error in a future version of PHP) in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:35 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHfunctions_admin.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:35 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHfunctions_admin.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:35 America/Los_Angeles] PHP Warning:  include(): Failed opening 'INCLUDE_PATHfunctions_admin.php' for inclusion (include_path='.:/opt/cpanel/ea-php72/root/usr/share/pear') in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:35 America/Los_Angeles] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/livebidauction/public_html/admin/bid.php:3) in /home/livebidauction/public_html/admin/loggedin.inc.php on line 34
+[04-Mar-2025 22:34:49 America/Los_Angeles] PHP Warning:  Use of undefined constant INCLUDE_PATH - assumed 'INCLUDE_PATH' (this will throw an Error in a future version of PHP) in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:49 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHfunctions_admin.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:49 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHfunctions_admin.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:34:49 America/Los_Angeles] PHP Warning:  include(): Failed opening 'INCLUDE_PATHfunctions_admin.php' for inclusion (include_path='.:/opt/cpanel/ea-php72/root/usr/share/pear') in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:35:02 America/Los_Angeles] PHP Warning:  Use of undefined constant INCLUDE_PATH - assumed 'INCLUDE_PATH' (this will throw an Error in a future version of PHP) in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:35:02 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHfunctions_admin.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:35:02 America/Los_Angeles] PHP Warning:  include(INCLUDE_PATHfunctions_admin.php): failed to open stream: No such file or directory in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:35:02 America/Los_Angeles] PHP Warning:  include(): Failed opening 'INCLUDE_PATHfunctions_admin.php' for inclusion (include_path='.:/opt/cpanel/ea-php72/root/usr/share/pear') in /home/livebidauction/public_html/admin/bid.php on line 3
+[04-Mar-2025 22:36:59 America/Los_Angeles] PHP Parse error:  syntax error, unexpected 'common' (T_STRING) in /home/livebidauction/public_html/admin/bid.php on line 31
+[02-Apr-2025 19:08:30 America/Los_Angeles] PHP Parse error:  syntax error, unexpected end of file, expecting ',' or ')' in /home/livebidauction/public_html/admin/categories.php on line 223
