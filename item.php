@@ -70,7 +70,8 @@ $ending_time = FormatTimeLeft($display_remaining);
 $has_ended = (!$manual_mode && ($raw_difference <= 0 || $auction_data['closed'] == 1));
 
 $manual_heading_time = '';
-if ($manual_mode)
+$show_manual_heading = ($auction_data['going_once'] == 1 && $auction_data['going_twice'] == 0 && !$has_ended);
+if ($show_manual_heading)
 {
 	$heading_hours = floor($display_remaining / 3600);
 	$heading_minutes = floor(($display_remaining % 3600) / 60);
@@ -83,6 +84,10 @@ if ($manual_mode)
 	{
 		$manual_heading_time = sprintf('%02d:%02d', $heading_minutes, $heading_seconds);
 	}
+}
+else
+{
+	$manual_heading_time = '';
 }
 
 
@@ -607,6 +612,7 @@ $template->assign_vars(array(
 		'MANUAL_LABEL' => $manual_label,
 		'MANUAL_LABEL_ATTR' => htmlspecialchars($manual_label, ENT_QUOTES, 'UTF-8'),
 		'MANUAL_COUNTDOWN_HEADING' => $manual_heading_time,
+		'B_MANUAL_HEADING' => $show_manual_heading,
 		'COUNTDOWN_MODE' => $manual_mode ? 'manual' : 'auto',
 		'B_HAS_QUESTIONS' => ($num_questions > 0),
 		'B_CAN_BUY' => ($user->can_buy || (!$user->logged_in && $system->SETTINGS['bidding_visable_to_guest'])) && !($start > time()),

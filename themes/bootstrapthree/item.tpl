@@ -278,7 +278,7 @@ function showHint()
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<b>Auction Updates</b>
-						<!-- IF B_MANUAL_COUNTDOWN -->
+						<!-- IF B_MANUAL_HEADING -->
 						<span class="label label-warning" id="manual_heading_timer">{MANUAL_COUNTDOWN_HEADING}</span>
 						<!-- ENDIF -->
 					</div>
