@@ -46,10 +46,33 @@ $auction_data = $db->result();
 
 
 
+$time_now = time();
+$manual_mode = ($auction_data['going_once'] == 1 || $auction_data['going_twice'] == 2);
+$manual_label = '';
+if ($manual_mode)
+{
+	$manual_label = ($auction_data['going_twice'] == 2) ? 'Fair Warning....Last chance to bid!' : 'Going Once....Hurry & bid!';
+}
+$ends = (int)$auction_data['ends'];
+$start = (int)$auction_data['starts'];
+$raw_difference = $ends - $time_now;
+$difference = $raw_difference;
+if ($manual_mode && $difference < 0)
+{
+	$difference = 0;
+}
+$display_remaining = ($difference < 0) ? 0 : $difference;
+if ($display_remaining < 0)
+{
+	$display_remaining = 0;
+}
+$ending_time = FormatTimeLeft($display_remaining);
+$has_ended = (!$manual_mode && ($raw_difference <= 0 || $auction_data['closed'] == 1));
+
+
+
 $category = $auction_data['category'];
 $auction_type = $auction_data['auction_type'];
-$ends = $auction_data['ends'];
-$start = $auction_data['starts'];
 $user_id = $auction_data['user'];
 $minimum_bid = $auction_data['minimum_bid'];
 $high_bid = $auction_data['current_bid'];
@@ -500,7 +523,7 @@ $template->assign_vars(array(
 		'ZIP' => $auction_data['zip'],
 		'QTY' => $auction_data['quantity'],
 		'ENDS' => $ending_time,
-		'ENDS_IN' => ($ends - time()),
+		'ENDS_IN' => $display_remaining,
 		
 		
 		'STARTTIME' => ArrangeDateNoCorrection($start + $system->tdiff),
@@ -562,7 +585,12 @@ $template->assign_vars(array(
 		'B_USERBID' => $userbid,
 		'B_BIDDERPRIV' => ($system->SETTINGS['buyerprivacy'] == 'y' && (!$user->logged_in || ($user->logged_in && $user->user_data['id'] != $auction_data['user']))),
 		'B_HASBUYER' => (count($hbidder_data) > 0),
-		'B_COUNTDOWN' => ($system->SETTINGS['hours_countdown'] > (($ends - time()) / 3600)),
+		'B_COUNTDOWN' => (!$manual_mode && $difference > 0 && $system->SETTINGS['hours_countdown'] > ($difference / 3600)),
+		'B_MANUAL_COUNTDOWN' => $manual_mode,
+		'MANUAL_COUNTDOWN' => $display_remaining,
+		'MANUAL_LABEL' => $manual_label,
+		'MANUAL_LABEL_ATTR' => htmlspecialchars($manual_label, ENT_QUOTES, 'UTF-8'),
+		'COUNTDOWN_MODE' => $manual_mode ? 'manual' : 'auto',
 		'B_HAS_QUESTIONS' => ($num_questions > 0),
 		'B_CAN_BUY' => ($user->can_buy || (!$user->logged_in && $system->SETTINGS['bidding_visable_to_guest'])) && !($start > time()),
 		'B_SHIPPING' => ($system->SETTINGS['shipping'] == 'y'),

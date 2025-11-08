@@ -61,6 +61,8 @@ $query = "SELECT a.*, u.email, u.endemailmode, u.nick, u.payment_details, u.name
 		FROM " . $DBPrefix . "auctions a
 		LEFT JOIN " . $DBPrefix . "users u ON (a.user = u.id)
 		WHERE a.ends <= :time
+		AND a.going_once = 0
+		AND a.going_twice = 0
 		AND ((a.closed = 0)
 		OR (a.closed = 1
 		AND a.reserve_price > 0

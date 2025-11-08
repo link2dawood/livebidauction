@@ -128,29 +128,32 @@ $NOW = time();
 $i = 0;
 while ($row = $db->fetch())
 {
-    $paused = ($row['going_once'] == 1); // check going_once
-
-    if($paused){
-        // Show message instead of timer
-        $ends_string = "Going Once....Hurry & bid!";
-         $remaining = $row['ends'] - time();
-        
-        $ends_string = FormatTimeLeft($remaining);
+$manual_mode = ($row['going_once'] == 1 || $row['going_twice'] == 2);
+$remaining = $row['ends'] - time();
+if ($remaining < 0) {
+    $remaining = 0;
+}
+$manual_label = '';
+if ($manual_mode) {
+    if ($row['going_twice'] == 2) {
+        $manual_label = 'Fair Warning....Last chance to bid!';
     } else {
-        // Normal countdown
-        $remaining = $row['ends'] - time();
-        if($remaining < 0) $remaining = 0;
-        $ends_string = FormatTimeLeft($remaining);
+        $manual_label = 'Going Once....Hurry & bid!';
     }
+}
+$ends_string = FormatTimeLeft($remaining);
 
     $template->assign_block_vars('featured', array(
         'ID' => $row['id'],
         'TITLE' => htmlspecialchars($row['title']),
         'IMAGE' => (!empty($row['pict_url'])) ? 'getthumb.php?w=' . $system->SETTINGS['thumb_show'] . '&amp;fromfile=' . UPLOAD_FOLDER . $row['id'] . '/' . $row['pict_url'] : 'images/email_alerts/default_item_img.jpg',
         'BID' => $system->print_money(($row['num_bids'] == 0) ? $row['minimum_bid'] : $row['current_bid']),
-        'PAUSED' => $paused ? 'true' : 'false',
+        'COUNTDOWN_MODE' => $manual_mode ? 'manual' : 'auto',
         'REMAINING' => $remaining,
-        'ENDS' => $ends_string
+        'ENDS' => $ends_string,
+        'MANUAL_LABEL' => $manual_label,
+        'MANUAL_LABEL_ATTR' => htmlspecialchars($manual_label, ENT_QUOTES, 'UTF-8'),
+        'AUTO_ENABLED' => (!$manual_mode && $remaining > 0)
     ));
     $i++;
 }

@@ -1,30 +1,60 @@
-<!-- IF B_COUNTDOWN -->
 <script type="text/javascript">
 $(document).ready(function() {
-	var currenttime = '{ENDS_IN}';
-	function padlength(what)
-	{
-		var output=(what.toString().length == 1)? '0' + what : what;
-		return output;
+	var $counter = $('#ending_counter');
+	if (!$counter.length) {
+		return;
 	}
-	function displaytime()
-	{
-		currenttime -= 1;
-		if (currenttime > 0){
-			var hours = Math.floor(currenttime / 3600);
-			var mins = Math.floor((currenttime - (hours * 3600)) / 60);
-			var secs = Math.floor(currenttime - (hours * 3600) - (mins * 60));
-			var timestring = padlength(hours) + ':' + padlength(mins) + ':' + padlength(secs);
-			$("#ending_counter").html(timestring);
-			setTimeout(displaytime, 1000);
+
+	var mode = $counter.data('mode') || 'auto';
+	var autoEnabled = $counter.data('auto-enabled');
+	var manualLabel = $counter.data('manual-label') || '';
+	var endedLabel = $counter.data('ended-label') || '';
+	var remaining = parseInt($counter.data('remaining'), 10);
+	if (isNaN(remaining) || remaining < 0) {
+		remaining = 0;
+	}
+
+	function pad(val) {
+		return (val.toString().length === 1) ? '0' + val : val;
+	}
+
+	function formatTime(seconds) {
+		var hours = Math.floor(seconds / 3600);
+		var mins = Math.floor((seconds % 3600) / 60);
+		var secs = Math.floor(seconds % 60);
+		return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+	}
+
+	function renderManual() {
+		if (remaining <= 0) {
+			$counter.text(manualLabel || 'Awaiting SOLD');
+			return;
+		}
+		$counter.text((manualLabel ? manualLabel + ' ' : '') + formatTime(remaining));
+		remaining--;
+		setTimeout(renderManual, 1000);
+	}
+
+	function renderAuto() {
+		if (!autoEnabled) {
+			return;
+		}
+		remaining--;
+		if (remaining > 0) {
+			$counter.text(formatTime(remaining));
+			setTimeout(renderAuto, 1000);
 		} else {
-			$("#ending_counter").html('<div class="error-box">{L_911}</div>');
+			$counter.html('<div class="error-box">' + endedLabel + '</div>');
 		}
 	}
-	setTimeout(displaytime, 1000);
+
+	if (mode === 'manual') {
+		renderManual();
+	} else {
+		setTimeout(renderAuto, 1000);
+	}
 });
 </script>
-<!-- ENDIF -->
 <div class="row">
 	<div class="col-md-12">
            <ul class="breadcrumb"><b>{L_041}:</b> {TOPCATSPATH}</ul>
@@ -113,7 +143,14 @@ $(document).ready(function() {
 						  <td width="50%" align="left">{L_118}: </td>
 						  <td align="left" valign="top">
 <!-- IF B_COUNTDOWN -->
-                          	<span id="ending_counter">{ENDS}</span>
+                          	<span id="ending_counter"
+		data-mode="{COUNTDOWN_MODE}"
+		data-remaining="{ENDS_IN}"
+		data-manual-label="{MANUAL_LABEL_ATTR}"
+		data-ended-label="{L_911}"
+		data-auto-enabled="<!-- IF B_COUNTDOWN -->true<!-- ELSE -->false<!-- ENDIF -->">
+		{ENDS}
+	</span>
 <!-- ELSE -->
                           	{ENDS}<!-- IF B_SHOWENDTIME --><br><span class="smallspan">({ENDTIME})</span><!-- ENDIF -->
 <!-- ENDIF -->
@@ -358,6 +395,7 @@ $(document).ready(function() {
 </div>
 <!-- ENDIF -->
 
+</div>
 </div>
 </div>
 </div>

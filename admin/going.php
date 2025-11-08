@@ -23,12 +23,14 @@ $catscontrol = new MPTTcategories();
 
 if($_GET['going'] == "1")
 {
-	
-$now = time(); // ✅ get current timestamp
-$end_time = $now + (15 * 60); // ✅ add 15 minutes
+
+$now = time();
+$manual_countdown = 5 * 60; // 5 minutes manual control window
+$end_time = $now + $manual_countdown;
 
 $query = "UPDATE " . $DBPrefix . "auctions 
-          SET going_once = 1, 
+          SET going_once = 1,
+              going_twice = 0,
               starts = :starts, 
               ends = :ends 
           WHERE id = :id";

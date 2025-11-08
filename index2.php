@@ -120,32 +120,49 @@ while ($row = $db->fetch())
 {
 	$ends = $row['ends'];
 	$difference = $ends - time();
+	$manual_mode = ($row['going_once'] == 1 || $row['going_twice'] == 2);
+	if ($difference < 0) {
+		$difference = 0;
+	}
 
-if ($difference > 0) {
-    $ends_string = FormatTimeLeft($difference);
-} else {
-    $ends_string = $MSG['911'];
+	if ($manual_mode) {
+		$ends_string = FormatTimeLeft($difference);
+	} else {
+		if ($difference > 0) {
+			$ends_string = FormatTimeLeft($difference);
+		} else {
+			$ends_string = $MSG['911'];
 
-    // ==============================
-    // Auto update going_twice = 1 when auction time is over
-    // ==============================
-    $updateQuery = "UPDATE " . $DBPrefix . "auctions 
+			// ==============================
+			// Auto update going_twice = 1 when auction time is over
+			// ==============================
+			$updateQuery = "UPDATE " . $DBPrefix . "auctions 
                     SET going_twice = 1 
                     WHERE id = :id AND going_twice = 0";
-    $updateParams = array(
-        array(':id', $row['id'], 'int')
-    );
-    $db->query($updateQuery, $updateParams);
-}
+			$updateParams = array(
+				array(':id', $row['id'], 'int')
+			);
+			$db->query($updateQuery, $updateParams);
+		}
+	}
 
 	$high_bid = ($row['num_bids'] == 0) ? $row['minimum_bid'] : $row['current_bid'];
 	$high_bid = ($row['bn_only']) ? $row['buy_now'] : $high_bid;
+	$manual_label = '';
+	if ($manual_mode) {
+		$manual_label = ($row['going_twice'] == 2) ? 'Fair Warning....Last chance to bid!' : 'Going Once....Hurry & bid!';
+	}
 	$template->assign_block_vars('featured', array(
 			'ENDS' => $ends_string,
 			'ID' => $row['id'],
 			'BID' => $system->print_money($high_bid),
 			'IMAGE' => (!empty($row['pict_url'])) ? 'getthumb.php?w=' . $system->SETTINGS['thumb_show'] . '&amp;fromfile=' . UPLOAD_FOLDER . $row['id'] . '/' . $row['pict_url'] : 'images/email_alerts/default_item_img.jpg',
-			'TITLE' => htmlspecialchars($row['title'])
+			'TITLE' => htmlspecialchars($row['title']),
+			'COUNTDOWN_MODE' => $manual_mode ? 'manual' : 'auto',
+			'REMAINING' => $difference,
+			'MANUAL_LABEL' => $manual_label,
+			'MANUAL_LABEL_ATTR' => htmlspecialchars($manual_label, ENT_QUOTES, 'UTF-8'),
+			'AUTO_ENABLED' => (!$manual_mode && $difference > 0)
 			));
 	$i++;
 }

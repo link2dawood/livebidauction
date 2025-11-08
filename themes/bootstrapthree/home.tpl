@@ -2,29 +2,50 @@
 <script>
 document.querySelectorAll('.countdown').forEach(function(el){
     let remaining = parseInt(el.dataset.remaining, 10);
-    const paused = el.dataset.paused === 'true';
+    if (isNaN(remaining) || remaining < 0) {
+        remaining = 0;
+    }
+    const mode = el.dataset.mode || 'auto';
+    const manualLabel = el.dataset.manualLabel || '';
+    const autoEnabled = el.dataset.autoEnabled === 'true';
+    const endedLabel = el.dataset.endedLabel || 'Ended';
 
-    if(paused){
-        // frozen countdown
-        el.innerHTML = el.innerHTML; // keep the PHP-rendered time
-        return; // stop countdown
+    function formatTime(value){
+        const h = Math.floor(value / 3600);
+        const m = Math.floor((value % 3600) / 60);
+        const s = value % 60;
+        return h + 'h ' + m + 'm ' + s + 's';
     }
 
-    function updateCountdown() {
-        if(remaining <= 0){
-            el.innerHTML = 'Ended';
-            clearInterval(interval);
+    if (mode === 'manual'){
+        const renderManual = function(){
+            if (remaining <= 0){
+                el.innerHTML = manualLabel || 'Awaiting SOLD';
+                return;
+            }
+            el.innerHTML = (manualLabel ? manualLabel + ' ' : '') + formatTime(remaining);
+            remaining--;
+            setTimeout(renderManual, 1000);
+        };
+        renderManual();
+        return;
+    }
+
+    if (!autoEnabled){
+        return;
+    }
+
+    const renderAuto = function(){
+        if (remaining <= 0){
+                el.innerHTML = endedLabel;
             return;
         }
-        const h = Math.floor(remaining / 3600);
-        const m = Math.floor((remaining % 3600) / 60);
-        const s = remaining % 60;
-        el.innerHTML = h + 'h ' + m + 'm ' + s + 's';
+        el.innerHTML = formatTime(remaining);
         remaining--;
-    }
+        setTimeout(renderAuto, 1000);
+    };
 
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+    renderAuto();
 });
 
 </script>
@@ -77,9 +98,12 @@ document.querySelectorAll('.countdown').forEach(function(el){
                 <div><small><span class="text-muted">{featured.ENDS}</span></small></div>
             
       <div class="countdown" 
-     data-remaining="{$REMAINING}" 
-     data-paused="{$PAUSED}">
-    {$ENDS}
+     data-remaining="{featured.REMAINING}" 
+     data-mode="{featured.COUNTDOWN_MODE}"
+     data-manual-label="{featured.MANUAL_LABEL_ATTR}"
+     data-auto-enabled="<!-- IF featured.AUTO_ENABLED -->true<!-- ELSE -->false<!-- ENDIF -->"
+     data-ended-label="{L_911}">
+    {featured.ENDS}
 </div>
  
 
