@@ -10,6 +10,7 @@ $(document).ready(function() {
 	var manualLabel = $counter.data('manual-label') || '';
 	var endedLabel = $counter.data('ended-label') || '';
 	var remaining = parseInt($counter.data('remaining'), 10);
+	var headingTimer = $('#manual_heading_timer');
 	if (isNaN(remaining) || remaining < 0) {
 		remaining = 0;
 	}
@@ -22,15 +23,26 @@ $(document).ready(function() {
 		var hours = Math.floor(seconds / 3600);
 		var mins = Math.floor((seconds % 3600) / 60);
 		var secs = Math.floor(seconds % 60);
-		return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+		if (hours > 0) {
+			return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+		}
+		return pad(mins) + ':' + pad(secs);
 	}
 
 	function renderManual() {
 		if (remaining <= 0) {
-			$counter.text(manualLabel || 'Awaiting SOLD');
+			var endText = manualLabel ? manualLabel + ' 00:00' : '00:00';
+			$counter.text(endText);
+			if (headingTimer.length) {
+				headingTimer.text('00:00');
+			}
 			return;
 		}
-		$counter.text((manualLabel ? manualLabel + ' ' : '') + formatTime(remaining));
+		var timeString = formatTime(remaining);
+		$counter.text((manualLabel ? manualLabel + ' ' : '') + timeString);
+		if (headingTimer.length) {
+			headingTimer.text(timeString);
+		}
 		remaining--;
 		setTimeout(renderManual, 1000);
 	}
