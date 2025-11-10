@@ -1,14 +1,7 @@
 
 <script>
-document.querySelectorAll('.countdown').forEach(function(el){
-    let remaining = parseInt(el.dataset.remaining, 10);
-    if (isNaN(remaining) || remaining < 0) {
-        remaining = 0;
-    }
-    const mode = el.dataset.mode || 'auto';
-    const manualLabel = el.dataset.manualLabel || '';
-    const autoEnabled = el.dataset.autoEnabled === 'true';
-    const endedLabel = el.dataset.endedLabel || 'Ended';
+(function(){
+    const POLL_INTERVAL = 5000;
 
     function formatTime(value){
         const h = Math.floor(value / 3600);
@@ -17,38 +10,111 @@ document.querySelectorAll('.countdown').forEach(function(el){
         return h + 'h ' + m + 'm ' + s + 's';
     }
 
-    if (mode === 'manual'){
-        const renderManual = function(){
-            if (remaining <= 0){
-                el.innerHTML = manualLabel || 'Awaiting SOLD';
+    function parseRemaining(value){
+        const numeric = parseInt(value, 10);
+        return (isNaN(numeric) || numeric < 0) ? 0 : numeric;
+    }
+
+    function setupCountdown(el){
+        const auctionId = parseInt(el.dataset.auctionId, 10);
+        const endedLabel = el.dataset.endedLabel || 'Ended';
+        let state = {
+            mode: el.dataset.mode || 'auto',
+            remaining: parseRemaining(el.dataset.remaining),
+            manualLabel: el.dataset.manualLabel || '',
+            autoEnabled: el.dataset.autoEnabled === 'true'
+        };
+
+        function render(){
+            const remaining = Math.max(state.remaining, 0);
+            if (state.mode === 'manual'){
+                el.classList.add('countdown-manual');
+                el.classList.remove('countdown-auto');
+                const label = state.manualLabel || endedLabel;
+                el.textContent = remaining > 0 ? label + ' ' + formatTime(remaining) : label;
+            } else {
+                el.classList.add('countdown-auto');
+                el.classList.remove('countdown-manual');
+                if (!state.autoEnabled){
+                    el.textContent = endedLabel;
+                    return;
+                }
+                if (remaining <= 0){
+                    el.textContent = endedLabel;
+                    state.autoEnabled = false;
+                    return;
+                }
+                el.textContent = formatTime(remaining);
+            }
+        }
+
+        function tick(){
+            if (state.mode === 'manual' || (state.mode === 'auto' && state.autoEnabled)){
+                if (state.remaining > 0){
+                    state.remaining -= 1;
+                }
+                render();
+            }
+        }
+
+        async function poll(){
+            if (!auctionId){
                 return;
             }
-            el.innerHTML = (manualLabel ? manualLabel + ' ' : '') + formatTime(remaining);
-            remaining--;
-            setTimeout(renderManual, 1000);
-        };
-        renderManual();
-        return;
-    }
-
-    if (!autoEnabled){
-        return;
-    }
-
-    const renderAuto = function(){
-        if (remaining <= 0){
-                el.innerHTML = endedLabel;
-            return;
+            try{
+                const response = await fetch('func.php?q=' + auctionId + '&t=' + Date.now(), {cache: 'no-store'});
+                if (!response.ok){
+                    throw new Error('Poll failed');
+                }
+                const data = await response.json();
+                if (typeof data.manual_mode !== 'undefined'){
+                    state.mode = data.manual_mode ? 'manual' : 'auto';
+                }
+                if (typeof data.manual_label !== 'undefined'){
+                    state.manualLabel = data.manual_label;
+                }
+                if (typeof data.remaining !== 'undefined'){
+                    state.remaining = parseRemaining(data.remaining);
+                }
+                if (typeof data.auto_enabled !== 'undefined'){
+                    state.autoEnabled = !!data.auto_enabled;
+                }
+                render();
+            } catch(e){
+                // Swallow errors; next poll will retry.
+            } finally{
+                setTimeout(poll, POLL_INTERVAL);
+            }
         }
-        el.innerHTML = formatTime(remaining);
-        remaining--;
-        setTimeout(renderAuto, 1000);
-    };
 
-    renderAuto();
-});
+        render();
+        setInterval(tick, 1000);
+        if (auctionId){
+            poll();
+        }
+    }
 
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.countdown').forEach(setupCountdown);
+    });
+})();
 </script>
+
+<style>
+.countdown {
+    display: block;
+    margin-top: 4px;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+.countdown-manual {
+    color: #c0392b;
+    font-size: 1.2rem;
+}
+.countdown-auto {
+    color: #2c3e50;
+}
+</style>
 
 
 
@@ -97,14 +163,22 @@ document.querySelectorAll('.countdown').forEach(function(el){
                 <div>{featured.BID}</div>
                 <div><small><span class="text-muted">{featured.ENDS}</span></small></div>
             
-      <div class="countdown" 
-     data-remaining="{featured.REMAINING}" 
-     data-mode="{featured.COUNTDOWN_MODE}"
-     data-manual-label="{featured.MANUAL_LABEL_ATTR}"
-     data-auto-enabled="<!-- IF featured.AUTO_ENABLED -->true<!-- ELSE -->false<!-- ENDIF -->"
-     data-ended-label="{L_911}">
-    {featured.ENDS}
-</div>
+      <!-- IF featured.COUNTDOWN_MODE eq 'manual' -->
+        <div style="font-size: 16px; font-weight: bold; color: #d9534f; padding: 10px; background-color: #fff3cd; border-radius: 4px;">
+            {featured.MANUAL_LABEL}
+        </div>
+      <!-- ELSE -->
+        <div class="countdown" 
+           data-remaining="{featured.REMAINING}" 
+           data-mode="{featured.COUNTDOWN_MODE}"
+           data-manual-label="{featured.MANUAL_LABEL_ATTR}"
+           data-auto-enabled="<!-- IF featured.AUTO_ENABLED -->true<!-- ELSE -->false<!-- ENDIF -->"
+           data-ended-label="{L_911}"
+           data-auction-id="{featured.ID}"
+           style="font-size: 14px; font-weight: bold;">
+            {featured.ENDS}
+        </div>
+      <!-- ENDIF -->
  
 
 

@@ -107,13 +107,14 @@ foreach ($cat_strings as $cat_id => $category_name)
 // get featured items
 $limit = (int)$system->SETTINGS['homefeaturednumber'];
 
-$query = "SELECT id, title, current_bid, pict_url, ends, num_bids, minimum_bid, bn_only, buy_now, going_once
+$query = "SELECT id, title, current_bid, pict_url, ends, num_bids, minimum_bid, bn_only, buy_now, going_once, going_twice
           FROM " . $DBPrefix . "auctions
           WHERE suspended = 0
           AND featured = 1
           AND (
                 (closed = 0 AND starts <= :start_time AND ends > :end_time)
                 OR going_once = 1
+                OR going_twice = 2
               )
           ORDER BY RAND()
           LIMIT $limit"; // LIMIT must be direct integer

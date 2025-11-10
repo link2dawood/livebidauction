@@ -23,12 +23,30 @@ $params = array();
 $params[] = array(':id', $_REQUEST['q'], 'int');
 $db->query($query, $params);
 $auction_data = $db->result();
-$going_once = $auction_data['going_once'];
-$going_twice = $auction_data['going_twice'];
+$going_once = (int)$auction_data['going_once'];
+$going_twice = (int)$auction_data['going_twice'];
 $sold = $auction_data['sold'];
 $suspended = $auction_data['suspended'];
 $high_bid = $auction_data['current_bid'];
 $minimum_bid = $auction_data['minimum_bid'];
+$closed = (int)$auction_data['closed'];
+$ends = (int)$auction_data['ends'];
+$manual_mode = ($going_once === 1 || $going_twice === 2);
+$manual_label = '';
+if ($going_twice === 2)
+{
+	$manual_label = 'Fair Warning....Last chance to bid!';
+}
+elseif ($going_once === 1)
+{
+	$manual_label = 'Going Once....Hurry & bid!';
+}
+$remaining = $ends - time();
+if ($remaining < 0)
+{
+	$remaining = 0;
+}
+$auto_enabled = (!$manual_mode && $closed == 0 && $suspended == 0 && $ends > time());
 $query = "SELECT b.*, u.nick, u.rate_sum FROM " . $DBPrefix . "bids b
 LEFT JOIN " . $DBPrefix . "users u ON (u.id = b.bidder)
 WHERE b.auction = :auc_id ORDER BY b.bid DESC, b.quantity DESC, b.id DESC";
@@ -56,7 +74,7 @@ if($sold != "y")
 	elseif($going_twice > 0)
 	{
 		$result = "<div class='alert alert-danger' role='alert'></center><h2>Fair Warning....Last chance to bid!</h2></center></div>";
-	 $data = [
+		$data = [
 			'result' => $result,
 			'current_bid' => $high_bid,
 			'num_bids' => $num_bids,
@@ -94,6 +112,16 @@ else
 			'Winner' => $Winner['nick']
 		];
 }
+
+// attach shared countdown attributes
+$data['manual_mode'] = $manual_mode;
+$data['manual_label'] = $manual_label;
+$data['remaining'] = $remaining;
+$data['auto_enabled'] = $auto_enabled;
+$data['going_once'] = $going_once;
+$data['going_twice'] = $going_twice;
+$data['closed'] = $closed;
+$data['ends'] = $ends;
 
 echo json_encode($data);
 

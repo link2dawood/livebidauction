@@ -5,12 +5,15 @@ $(document).ready(function() {
 		return;
 	}
 
+	var auctionId = parseInt($counter.data('auction-id'), 10);
 	var mode = $counter.data('mode') || 'auto';
 	var autoEnabled = $counter.data('auto-enabled');
 	var manualLabel = $counter.data('manual-label') || '';
 	var endedLabel = $counter.data('ended-label') || '';
 	var remaining = parseInt($counter.data('remaining'), 10);
 	var headingTimer = $('#manual_heading_timer');
+	var pollInterval = null;
+	
 	if (isNaN(remaining) || remaining < 0) {
 		remaining = 0;
 	}
@@ -29,20 +32,55 @@ $(document).ready(function() {
 		return pad(mins) + ':' + pad(secs);
 	}
 
+	function updateCounterDisplay() {
+		var timeString = formatTime(remaining);
+		var displayText = (manualLabel ? manualLabel + ' ' : '') + timeString;
+		$counter.css('font-size', '20px').css('font-weight', 'bold').text(displayText);
+		if (headingTimer.length) {
+			headingTimer.css('font-size', '18px').css('font-weight', 'bold').text(timeString);
+		}
+	}
+
+	function pollAuctionState() {
+		$.ajax({
+			url: '{SITEURL}auction_state.php',
+			type: 'GET',
+			data: { id: auctionId },
+			dataType: 'json',
+			timeout: 5000,
+			success: function(data) {
+				// Update mode if state changed
+				if (data.manual_mode && mode !== 'manual') {
+					mode = 'manual';
+					manualLabel = data.manual_label;
+				} else if (!data.manual_mode && mode === 'manual') {
+					mode = 'auto';
+					manualLabel = '';
+				}
+				
+				// Update remaining time based on server response
+				remaining = Math.max(0, data.remaining);
+			},
+			error: function() {
+				// Silently fail, keep local countdown running
+			}
+		});
+	}
+
 	function renderManual() {
 		if (remaining <= 0) {
 			var endText = manualLabel ? manualLabel + ' 00:00' : '00:00';
-			$counter.text(endText);
+			$counter.css('font-size', '20px').css('font-weight', 'bold').text(endText);
 			if (headingTimer.length) {
-				headingTimer.text('00:00');
+				headingTimer.css('font-size', '18px').css('font-weight', 'bold').text('00:00');
+			}
+			// Stop polling when countdown ends
+			if (pollInterval) {
+				clearInterval(pollInterval);
 			}
 			return;
 		}
-		var timeString = formatTime(remaining);
-		$counter.text((manualLabel ? manualLabel + ' ' : '') + timeString);
-		if (headingTimer.length) {
-			headingTimer.text(timeString);
-		}
+		updateCounterDisplay();
 		remaining--;
 		setTimeout(renderManual, 1000);
 	}
@@ -53,16 +91,20 @@ $(document).ready(function() {
 		}
 		remaining--;
 		if (remaining > 0) {
-			$counter.text(formatTime(remaining));
+			$counter.css('font-size', '18px').text(formatTime(remaining));
 			setTimeout(renderAuto, 1000);
 		} else {
-			$counter.html('<div class="error-box">' + endedLabel + '</div>');
+			$counter.html('<div class="error-box" style="font-size: 16px; font-weight: bold;">' + endedLabel + '</div>');
 		}
 	}
 
 	if (mode === 'manual') {
+		// Poll every 2 seconds for state changes in manual mode
+		pollInterval = setInterval(pollAuctionState, 2000);
 		renderManual();
 	} else {
+		// Poll every 5 seconds in auto mode to catch manual button press
+		pollInterval = setInterval(pollAuctionState, 5000);
 		setTimeout(renderAuto, 1000);
 	}
 });
@@ -269,6 +311,21 @@ function showHint()
 						  <td colspan="2" align="left"><b>{L_904}</b></td>
 						</tr>
 <!-- ENDIF -->
+						<tr>
+						  <td width="30%" align="left">{L_118}: </td>
+						  <td align="left">
+						  	<span id="ending_counter"
+								data-auction-id="{ID}"
+								data-mode="{COUNTDOWN_MODE}"
+								data-remaining="{ENDS_IN}"
+								data-manual-label="{MANUAL_LABEL_ATTR}"
+								data-ended-label="{L_911}"
+								data-auto-enabled="<!-- IF B_COUNTDOWN -->true<!-- ELSE -->false<!-- ENDIF -->"
+								style="font-size: 18px; font-weight: bold; color: #d9534f;">
+								{ENDS}
+							</span>
+						  </td>
+						</tr>
 					  </table>
                                        </div>
 

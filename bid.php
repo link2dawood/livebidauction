@@ -130,6 +130,7 @@ else
 }
 
 $Data = $db->result();
+$manual_mode = ($Data['going_once'] == 1 || $Data['going_twice'] == 2);
 $item_title = htmlspecialchars($Data['title']);
 $item_id = $Data['id'];
 $seller_name = $Data['nick'];
@@ -144,7 +145,7 @@ $reserve = $Data['reserve_price'];
 $c = $Data['ends'];
 $cbid = ($current_bid == 0) ? $minimum_bid : $current_bid;
 
-if (($Data['ends'] <= time() || $Data['closed']) && !isset($errmsg))
+if (($Data['ends'] <= time() || $Data['closed']) && !$manual_mode && !isset($errmsg))
 {
 	$errmsg = $ERR_614;
 }
