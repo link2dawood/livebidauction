@@ -71,19 +71,11 @@ if($sold != "y")
 		];
 		
 	}
-	elseif($going_twice > 0)
+	elseif($manual_mode)
 	{
-		$result = "<div class='alert alert-danger' role='alert'></center><h2>Fair Warning....Last chance to bid!</h2></center></div>";
-		$data = [
-			'result' => $result,
-			'current_bid' => $high_bid,
-			'num_bids' => $num_bids,
-			'Winner' => $Winner['nick']
-		];
-	}
-	elseif($going_once > 0)
-	{
-		$result = "<div class='alert alert-warning' role='alert'><center><h2>Going Once....Hurry & bid!</h2></center></div>";
+		// In manual mode, show brief status without large heading (heading timer displays in panel-heading)
+		$status = ($going_twice === 2) ? 'Fair Warning - Auction in final stage' : 'Manual mode active - Ready to bid';
+		$result = "<div class='alert alert-info' role='alert'><center><small>$status</small></center></div>";
 		$data = [
 			'result' => $result,
 			'current_bid' => $high_bid,

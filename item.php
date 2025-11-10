@@ -70,7 +70,7 @@ $ending_time = FormatTimeLeft($display_remaining);
 $has_ended = (!$manual_mode && ($raw_difference <= 0 || $auction_data['closed'] == 1));
 
 $manual_heading_time = '';
-$show_manual_heading = ($auction_data['going_once'] == 1 && $auction_data['going_twice'] == 0 && !$has_ended);
+$show_manual_heading = ($manual_mode && !$has_ended);
 if ($show_manual_heading)
 {
 	$heading_hours = floor($display_remaining / 3600);
