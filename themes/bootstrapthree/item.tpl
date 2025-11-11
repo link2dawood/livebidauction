@@ -13,6 +13,8 @@ $(document).ready(function() {
 	var remaining = parseInt($counter.data('remaining'), 10);
 	var headingTimer = $('#manual_heading_timer');
 	var pollInterval = null;
+	var autoTimerId = null;
+	var manualTimerId = null;
 	
 	if (isNaN(remaining) || remaining < 0) {
 		remaining = 0;
@@ -41,6 +43,43 @@ $(document).ready(function() {
 		}
 	}
 
+	function setPollInterval(interval) {
+		if (pollInterval) {
+			clearInterval(pollInterval);
+		}
+		pollInterval = setInterval(pollAuctionState, interval);
+	}
+
+	function clearManualTimer() {
+		if (manualTimerId) {
+			clearTimeout(manualTimerId);
+			manualTimerId = null;
+		}
+	}
+
+	function clearAutoTimer() {
+		if (autoTimerId) {
+			clearTimeout(autoTimerId);
+			autoTimerId = null;
+		}
+	}
+
+	function startManualMode() {
+		mode = 'manual';
+		clearAutoTimer();
+		setPollInterval(2000);
+		renderManual();
+	}
+
+	function startAutoMode() {
+		mode = 'auto';
+		clearManualTimer();
+		setPollInterval(5000);
+		if (autoEnabled) {
+			renderAuto();
+		}
+	}
+
 	function pollAuctionState() {
 		$.ajax({
 			url: '{SITEURL}auction_state.php',
@@ -49,17 +88,27 @@ $(document).ready(function() {
 			dataType: 'json',
 			timeout: 5000,
 			success: function(data) {
-				// Update mode if state changed
-				if (data.manual_mode && mode !== 'manual') {
-					mode = 'manual';
-					manualLabel = data.manual_label;
-				} else if (!data.manual_mode && mode === 'manual') {
-					mode = 'auto';
-					manualLabel = '';
-				}
-				
-				// Update remaining time based on server response
+				var manualModeActive = !!data.manual_mode;
+				var switchedToManual = manualModeActive && mode !== 'manual';
+				var switchedToAuto = !manualModeActive && mode === 'manual';
+
 				remaining = Math.max(0, data.remaining);
+
+				if (manualModeActive) {
+					manualLabel = data.manual_label || '';
+					if (switchedToManual) {
+						startManualMode();
+					} else {
+						renderManual();
+					}
+				} else {
+					manualLabel = '';
+					if (switchedToAuto) {
+						startAutoMode();
+					} else if (autoEnabled) {
+						renderAuto();
+					}
+				}
 			},
 			error: function() {
 				// Silently fail, keep local countdown running
@@ -68,6 +117,7 @@ $(document).ready(function() {
 	}
 
 	function renderManual() {
+		clearManualTimer();
 		if (remaining <= 0) {
 			var endText = manualLabel ? manualLabel + ' 00:00' : '00:00';
 			$counter.css('font-size', '20px').css('font-weight', 'bold').text(endText);
@@ -77,35 +127,33 @@ $(document).ready(function() {
 			// Stop polling when countdown ends
 			if (pollInterval) {
 				clearInterval(pollInterval);
+				pollInterval = null;
 			}
 			return;
 		}
 		updateCounterDisplay();
-		remaining--;
-		setTimeout(renderManual, 1000);
+		remaining = Math.max(0, remaining - 1);
+		manualTimerId = setTimeout(renderManual, 1000);
 	}
 
 	function renderAuto() {
+		clearAutoTimer();
 		if (!autoEnabled) {
 			return;
 		}
-		remaining--;
-		if (remaining > 0) {
-			$counter.css('font-size', '18px').text(formatTime(remaining));
-			setTimeout(renderAuto, 1000);
-		} else {
+		if (remaining <= 0) {
 			$counter.html('<div class="error-box" style="font-size: 16px; font-weight: bold;">' + endedLabel + '</div>');
+			return;
 		}
+		$counter.css('font-size', '18px').text(formatTime(remaining));
+		remaining = Math.max(0, remaining - 1);
+		autoTimerId = setTimeout(renderAuto, 1000);
 	}
 
 	if (mode === 'manual') {
-		// Poll every 2 seconds for state changes in manual mode
-		pollInterval = setInterval(pollAuctionState, 2000);
-		renderManual();
+		startManualMode();
 	} else {
-		// Poll every 5 seconds in auto mode to catch manual button press
-		pollInterval = setInterval(pollAuctionState, 5000);
-		setTimeout(renderAuto, 1000);
+		startAutoMode();
 	}
 });
 </script>
