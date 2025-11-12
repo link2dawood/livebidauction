@@ -606,7 +606,7 @@ $template->assign_vars(array(
 		'B_USERBID' => $userbid,
 		'B_BIDDERPRIV' => ($system->SETTINGS['buyerprivacy'] == 'y' && (!$user->logged_in || ($user->logged_in && $user->user_data['id'] != $auction_data['user']))),
 		'B_HASBUYER' => (count($hbidder_data) > 0),
-		'B_COUNTDOWN' => (!$manual_mode && $difference > 0 && $system->SETTINGS['hours_countdown'] > ($difference / 3600)),
+		'B_COUNTDOWN' => (!$manual_mode && $difference > 0),
 		'B_MANUAL_COUNTDOWN' => $manual_mode,
 		'MANUAL_COUNTDOWN' => $display_remaining,
 		'MANUAL_LABEL' => $manual_label,
