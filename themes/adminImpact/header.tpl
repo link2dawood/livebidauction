@@ -58,7 +58,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html"><img src="{SITEURL}themes/{THEME}/img/logo.png"></a>
+                <a class="navbar-brand" href="index.html"><img src="{SITEURL}themes/{THEME}/img/adminlogo.png" alt="Admin Logo"></a>
             </div>
             <!-- Top Menu Items -->
             <ul class="nav navbar-right top-nav">
