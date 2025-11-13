@@ -17,7 +17,7 @@ include INCLUDE_PATH . 'functions_invoices.php';
 
 $fromadmin = true;
 // first check if from admin
-if (!(isset($_GET['hash']) && $_SESSION['INVOICE_RETURN'] == 'admin/invoice.php' && $_GET['hash'] == $_SESSION['WEBID_ADMIN_NUMBER']))
+if (!(isset($_GET['hash']) && isset($_SESSION['INVOICE_RETURN']) && in_array($_SESSION['INVOICE_RETURN'], array('admin/invoice.php', 'admin/outstandings.php')) && $_GET['hash'] == $_SESSION['WEBID_ADMIN_NUMBER']))
 {
 	$fromadmin = false;
 	// If user is not logged in redirect to login page

@@ -62,11 +62,11 @@
 					   <input type="hidden" name="user_id" value="{USER_ID}" class="form-control">
                        <input type="submit" name="Pay" value="{L_756}" class="btn btn-primary btn-xs">
                     </form>
-                    <p><form name="" method="post" action="{SITEURL}order_print.php" id="fees" title="Print Invoice" target="_blank">
+                    <p><form name="" method="post" action="{SITEURL}order_print.php?hash={HASH}" id="fees" title="Print Invoice" target="_blank">
                        <input type="hidden" name="csrftoken" value="{_CSRFTOKEN}">
     	               <input type="hidden" name="pfval" value="{to_pay.AUC_ID}">
 		       <input type="hidden" name="pfwon" value="{to_pay.WINID}">
-		       <input type="hidden" name="user_id" value="{ID}">
+		       <input type="hidden" name="user_id" value="{USER_ID}">
                        <input type="submit" type="button" value="{L_1058}" class="btn btn-default btn-xs">
                     </form></p>
                     </div>

@@ -141,12 +141,13 @@ $user_balance =$user_balance + $result_win['bid'] + $result_win['tax'] + $result
 }
 // print_r($totalNomiamount);
 // die();
-$_SESSION['INVOICE_RETURN'] = 'outstanding.php';
+$_SESSION['INVOICE_RETURN'] = 'admin/outstandings.php';
 $template->assign_vars(array(
 		'USER_BALANCE' => $system->print_money($totalNomiamount),
 		'PAY_BALANCE' => $system->print_money_nosymbol($totalNomiamount),
 		'CURRENCY' => $system->SETTINGS['currency'],
 		'USER_ID' => $_GET['id'],
+		'HASH' => $_SESSION['WEBID_ADMIN_NUMBER'],
 
 		'PREV' => ($PAGES > 1 && $PAGE > 1) ? '<a href="' . $system->SETTINGS['siteurl'] . 'outstanding.php?PAGE=' . $PREV . '"><u>' . $MSG['5119'] . '</u></a>&nbsp;&nbsp;' : '',
 		'NEXT' => ($PAGE < $PAGES) ? '<a href="' . $system->SETTINGS['siteurl'] . 'outstanding.php?PAGE=' . $NEXT . '"><u>' . $MSG['5120'] . '</u></a>' : '',
