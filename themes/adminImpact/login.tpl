@@ -49,8 +49,8 @@
 		<div class="row">
 			<div class="col-md-4 col-md-offset-4">
 			    <div class="panel panel-default login-panel">
-			        <div class="panel-heading text-center">
-                        <img src="{SITEURL}themes/{THEME}/img/logo.png">
+        <div class="panel-heading text-center">
+                        <img src="{SITEURL}themes/{THEME}/img/adminlogo.png" alt="Admin Logo">
                     </div>
 			        <div class="panel-body">
 <!-- IF PAGE eq 1 -->
