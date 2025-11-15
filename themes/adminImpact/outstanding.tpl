@@ -25,7 +25,10 @@
 
 <!-- BEGIN to_pay -->
        <div class="panel panel-default">
-         <div class="panel-heading">
+        <div class="panel-heading">
+              <!-- IF to_pay.WINNER_LABEL -->
+                <span class="label label-info" style="margin-right:8px;">Winner ID: {to_pay.WINNER_LABEL}</span>
+              <!-- ENDIF -->
               <!-- IF to_pay.B_NOTITLE -->
     	            {L_113} {to_pay.ID}
               <!-- ELSE -->

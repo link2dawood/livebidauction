@@ -132,6 +132,7 @@
 	<!-- IF B_IS_AUCTION -->
 		<tr class="dataTableRow">
 			<td class="dataTableContent" valign="top">
+				<!-- IF B_WINNER_ID --><div style="font-weight:bold;margin-bottom:4px;">Winner ID: {WINNER_ID}</div><!-- ENDIF -->
 				{ITEM_QUANTITY} x {AUCTION_TITLE}
 			</td>
 			<td class="dataTableContent" valign="top" align="right"><b>{UNIT_PRICE}</b></td>

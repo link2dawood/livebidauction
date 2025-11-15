@@ -16,6 +16,7 @@ include 'common.php';
 include INCLUDE_PATH . 'functions_invoices.php';
 
 $fromadmin = true;
+$winner_label = '';
 // first check if from admin
 if (!(isset($_GET['hash']) && isset($_SESSION['INVOICE_RETURN']) && in_array($_SESSION['INVOICE_RETURN'], array('admin/invoice.php', 'admin/outstandings.php')) && $_GET['hash'] == $_SESSION['WEBID_ADMIN_NUMBER']))
 {
@@ -82,6 +83,7 @@ if ($auction)
 	// sort out auction data
 	$seller = getSeller($data['seller_id']);
 	$winner = getAddressWinner($data['winner']);
+	$winner_label = !empty($winner['nick']) ? $winner['nick'] : $data['winner'];
 	$vat = getTax(true, $winner['country'], $seller['country']);
 	$title = $system->SETTINGS['sitename'] . ' - ' . htmlspecialchars($data['title']);
 	$additional_shipping = $data['additional_shipping_cost'] * ($data['qty'] - 1);
@@ -236,7 +238,9 @@ $template->assign_vars(array(
 		'THANKYOU' => $system->SETTINGS['invoice_thankyou'],
 
 		'B_INVOICE' => true,
-		'B_IS_AUCTION' => $auction
+		'B_IS_AUCTION' => $auction,
+		'WINNER_ID' => $winner_label,
+		'B_WINNER_ID' => !empty($winner_label)
 		));
 
 $template->set_filenames(array(

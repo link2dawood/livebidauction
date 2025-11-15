@@ -36,8 +36,9 @@ $params[] = array(':winner_id', $_GET['id'], 'int');
 $db->query($query, $params);
 $TOTALAUCTIONS = $db->result('COUNT');
 $PAGES = ($TOTALAUCTIONS == 0) ? 1 : ceil($TOTALAUCTIONS / $system->SETTINGS['perpage']);
-$query = "SELECT w.id, w.winner, w.tax_id, w.tax_fee, w.auc_title,a.tax,a.taxinc, w.auc_shipping_cost, a.shipping_cost, w.bid,w.buyer_fee, w.qty, w.auction As auc_id, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
+$query = "SELECT w.id, w.winner, w.tax_id, w.tax_fee, w.auc_title, a.tax, a.taxinc, w.auc_shipping_cost, a.shipping_cost, w.bid, w.buyer_fee, w.qty, w.auction As auc_id, a.additional_shipping_cost, a.shipping, u.nick AS winner_nick FROM " . $DBPrefix . "winners w
 		JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
+		LEFT JOIN " . $DBPrefix . "users u ON (u.id = w.winner)
 		WHERE w.paid = 0 AND w.winner = :user_id
 		LIMIT :OFFSET, :per_page";
 $params = array();
@@ -80,6 +81,7 @@ if($row['tax'] ==1 && $row['taxinc'] ==1){
 			'ID' => $row['id'],
 			'URL' => $system->SETTINGS['siteurl'] . 'item.php?id=' . $row['auc_id'],
 			'TITLE' => htmlspecialchars($row['auc_title']),
+			'WINNER_LABEL' => (!empty($row['winner_nick']) ? $row['winner_nick'] : $row['winner']),
 			'BUYER_FEE' => $MSG['775']. ' 15%',
 			'TAX_TITLE' => $tax_name.' '.$tax_rate.'%',
 			'TAX_FEE' => $system->print_money($row['tax_fee']),
