@@ -78,11 +78,12 @@ if($row['tax'] ==1 && $row['taxinc'] ==1){
 	$params_winner = array();
 	$params_winner[] = array(':auc_id', $row['auc_id'], 'int');
 	$db->query($query_winner, $params_winner);
-	$actual_winner_label = (!empty($row['winner_nick']) ? $row['winner_nick'] : $row['winner']); // fallback
+	$actual_winner_label = $row['winner']; // fallback to winner ID
 	if ($db->numrows() > 0)
 	{
 		$bid_winner = $db->result();
-		$actual_winner_label = !empty($bid_winner['nick']) ? $bid_winner['nick'] : $bid_winner['bidder'];
+		// Show the user ID (what was entered/assigned), not the nickname
+		$actual_winner_label = $bid_winner['bidder'];
 	}
 	
 // 	echo '<pre>';

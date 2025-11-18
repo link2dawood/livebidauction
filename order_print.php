@@ -88,18 +88,17 @@ if ($auction)
 	$params[] = array(':auc_id', $_POST['pfval'], 'int');
 	$db->query($query, $params);
 	$actual_winner_id = $data['winner']; // fallback to winners table
-	$actual_winner_nick = '';
 	if ($db->numrows() > 0)
 	{
 		$bid_winner = $db->result();
 		$actual_winner_id = $bid_winner['bidder'];
-		$actual_winner_nick = $bid_winner['nick'];
 	}
 
 	// sort out auction data
 	$seller = getSeller($data['seller_id']);
 	$winner = getAddressWinner($actual_winner_id);
-	$winner_label = !empty($actual_winner_nick) ? $actual_winner_nick : (!empty($winner['nick']) ? $winner['nick'] : $actual_winner_id);
+	// Show the user ID (what was entered/assigned), not the nickname
+	$winner_label = $actual_winner_id;
 	$vat = getTax(true, $winner['country'], $seller['country']);
 	$title = $system->SETTINGS['sitename'] . ' - ' . htmlspecialchars($data['title']);
 	$additional_shipping = $data['additional_shipping_cost'] * ($data['qty'] - 1);

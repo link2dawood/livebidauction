@@ -218,18 +218,37 @@ else if(isset($_POST['going']) && $_POST['going'] == "3")
 	$num_bids = $db->numrows();
 	if($num_bids > 0){
 		$Winner = $db->result();
-		$query = "SELECT nick,id FROM " . $DBPrefix . "users WHERE nick = :nick LIMIT 1";
-		    $params = array();
+		$floor_user_id = null;
+		// Check if bidder is a numeric ID or a nickname
+		if (is_numeric($_POST['bidder'])) {
+			// It's a user ID
+			$floor_user_id = intval($_POST['bidder']);
+			$query = "SELECT id FROM " . $DBPrefix . "users WHERE id = :user_id LIMIT 1";
+			$params = array();
+			$params[] = array(':user_id', $floor_user_id, 'int');
+			$db->query($query, $params);
+			if ($db->numrows() == 0) {
+				$floor_user_id = null; // Invalid user ID
+			}
+		} else {
+			// It's a nickname, look it up
+			$query = "SELECT id FROM " . $DBPrefix . "users WHERE nick = :nick LIMIT 1";
+			$params = array();
 			$params[] = array(':nick', $_POST['bidder'], 'str');
 			$db->query($query, $params);
-			if ($db->numrows() > 0)
-			{
-			$floor_user = $db->result();
-			$query = "UPDATE " . $DBPrefix . "bids SET bidder = '".$floor_user['id']."' WHERE id = :id";
+			if ($db->numrows() > 0) {
+				$floor_user = $db->result();
+				$floor_user_id = $floor_user['id'];
+			}
+		}
+		
+		if ($floor_user_id !== null) {
+			$query = "UPDATE " . $DBPrefix . "bids SET bidder = :bidder_id WHERE id = :id";
 			$params = array();
+			$params[] = array(':bidder_id', $floor_user_id, 'int');
 			$params[] = array(':id', $Winner['bid_id'], 'int');
 			$db->query($query, $params);
-			}
+		}
 		
 		//Disable Bidder Temp expect floor user.
 		if($Winner['is_floor'] != 1){
