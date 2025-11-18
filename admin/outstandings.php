@@ -71,6 +71,20 @@ if($row['tax'] ==1 && $row['taxinc'] ==1){
 			$tax_rate = $row1['tax_rate'];
 	$shipping_data = calculate_shipping_data($row, $row['qty'], false);
 	
+	// Get the actual winner from the highest bid (this is what gets updated when admin enters floor bidder)
+	$query_winner = "SELECT b.bidder, u.nick FROM " . $DBPrefix . "bids b
+			LEFT JOIN " . $DBPrefix . "users u ON (b.bidder = u.id)
+			WHERE b.auction = :auc_id ORDER BY b.bid DESC, b.quantity DESC, b.id DESC LIMIT 1";
+	$params_winner = array();
+	$params_winner[] = array(':auc_id', $row['auc_id'], 'int');
+	$db->query($query_winner, $params_winner);
+	$actual_winner_label = (!empty($row['winner_nick']) ? $row['winner_nick'] : $row['winner']); // fallback
+	if ($db->numrows() > 0)
+	{
+		$bid_winner = $db->result();
+		$actual_winner_label = !empty($bid_winner['nick']) ? $bid_winner['nick'] : $bid_winner['bidder'];
+	}
+	
 // 	echo '<pre>';
 // 	echo $i.' :';
 // 	echo 
@@ -81,7 +95,7 @@ if($row['tax'] ==1 && $row['taxinc'] ==1){
 			'ID' => $row['id'],
 			'URL' => $system->SETTINGS['siteurl'] . 'item.php?id=' . $row['auc_id'],
 			'TITLE' => htmlspecialchars($row['auc_title']),
-			'WINNER_LABEL' => (!empty($row['winner_nick']) ? $row['winner_nick'] : $row['winner']),
+			'WINNER_LABEL' => $actual_winner_label,
 			'BUYER_FEE' => $MSG['775']. ' 15%',
 			'TAX_TITLE' => $tax_name.' '.$tax_rate.'%',
 			'TAX_FEE' => $system->print_money($row['tax_fee']),
