@@ -232,21 +232,53 @@ else if(isset($_POST['going']) && $_POST['going'] == "3")
 		}
 	}
 	
-	// Update the winners table to store the "Winning Bidder No" value
-	// This will be displayed as "Winner ID" everywhere
-	if (!empty($winning_bidder_no) && is_numeric($winning_bidder_no)) {
-		$query = "UPDATE " . $DBPrefix . "winners SET winner = :winner_id WHERE auction = :auc_id";
-		$params = array();
-		$params[] = array(':winner_id', intval($winning_bidder_no), 'int');
-		$params[] = array(':auc_id', $_POST['id'], 'int');
-		$db->query($query, $params);
-	}
-	// Run cron according to SETTINGS
+	// Run cron first (if enabled) to create winners entry if needed
 	if ($system->SETTINGS['cron'] == 2)
 	{
-		
 		include_once '../cron.php';
+	}
+	
+	// Update or create the winners table entry to store the "Winning Bidder No" value
+	// This will be displayed as "Winner ID" everywhere
+	// IMPORTANT: This must run AFTER cron to ensure it overwrites any value cron set
+	if (!empty($winning_bidder_no) && is_numeric($winning_bidder_no)) {
+		// First check if winners entry exists
+		$query = "SELECT id FROM " . $DBPrefix . "winners WHERE auction = :auc_id LIMIT 1";
+		$params = array();
+		$params[] = array(':auc_id', $_POST['id'], 'int');
+		$db->query($query, $params);
 		
+		if ($db->numrows() > 0) {
+			// Entry exists, update it with the "Winning Bidder No" value
+			$query = "UPDATE " . $DBPrefix . "winners SET winner = :winner_id WHERE auction = :auc_id";
+			$params = array();
+			$params[] = array(':winner_id', intval($winning_bidder_no), 'int');
+			$params[] = array(':auc_id', $_POST['id'], 'int');
+			$db->query($query, $params);
+		} else {
+			// Entry doesn't exist yet, create it
+			// Get auction data to create the entry
+			$query = "SELECT a.id, a.user, a.current_bid, a.title, a.payment FROM " . $DBPrefix . "auctions a WHERE a.id = :auc_id";
+			$params = array();
+			$params[] = array(':auc_id', $_POST['id'], 'int');
+			$db->query($query, $params);
+			if ($db->numrows() > 0) {
+				$auction_data = $db->result();
+				$query = "INSERT INTO " . $DBPrefix . "winners 
+					(auction, seller, winner, bid, closingdate, feedback_win, feedback_sel, qty, paid, bf_paid, ff_paid, shipped, auc_title, auc_shipping_cost, auc_payment) 
+					VALUES 
+					(:auc_id, :seller_id, :winner_id, :current_bid, :time, 0, 0, 1, 0, 1, 1, 0, :auc_title, 0, :auc_payment)";
+				$params = array();
+				$params[] = array(':auc_id', $_POST['id'], 'int');
+				$params[] = array(':seller_id', $auction_data['user'], 'int');
+				$params[] = array(':winner_id', intval($winning_bidder_no), 'int');
+				$params[] = array(':current_bid', $auction_data['current_bid'], 'float');
+				$params[] = array(':time', time(), 'int');
+				$params[] = array(':auc_title', $auction_data['title'], 'str');
+				$params[] = array(':auc_payment', $auction_data['payment'], 'str');
+				$db->query($query, $params);
+			}
+		}
 	}
 
 
