@@ -80,24 +80,14 @@ if ($auction)
 		invalidinvoice();
 	}
 
-	// Get the actual winner from the highest bid (this is what gets updated when admin enters floor bidder)
-	$query = "SELECT b.bidder, u.nick FROM " . $DBPrefix . "bids b
-			LEFT JOIN " . $DBPrefix . "users u ON (b.bidder = u.id)
-			WHERE b.auction = :auc_id ORDER BY b.bid DESC, b.quantity DESC, b.id DESC LIMIT 1";
-	$params = array();
-	$params[] = array(':auc_id', $_POST['pfval'], 'int');
-	$db->query($query, $params);
-	$actual_winner_id = $data['winner']; // fallback to winners table
-	if ($db->numrows() > 0)
-	{
-		$bid_winner = $db->result();
-		$actual_winner_id = $bid_winner['bidder'];
-	}
+	// Get the "Winning Bidder No" from winners table (this is what admin entered when clicking "Sold")
+	// This is the value that should be displayed as "Winner ID"
+	$actual_winner_id = $data['winner']; // This is the "Winning Bidder No" entered by admin (e.g., "112")
 
 	// sort out auction data
 	$seller = getSeller($data['seller_id']);
 	$winner = getAddressWinner($actual_winner_id);
-	// Show the user ID (what was entered/assigned), not the nickname
+	// Show the "Winning Bidder No" that admin entered (e.g., "112")
 	$winner_label = $actual_winner_id;
 	$vat = getTax(true, $winner['country'], $seller['country']);
 	$title = $system->SETTINGS['sitename'] . ' - ' . htmlspecialchars($data['title']);

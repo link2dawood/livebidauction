@@ -209,6 +209,10 @@ else if(isset($_POST['going']) && $_POST['going'] == "3")
 	$params[] = array(':id', $_POST['id'], 'int');
 	$params[] = array(':time', time(), 'int');
 	$db->query($query, $params);
+	
+	// Store the "Winning Bidder No" value as-is (this is what admin entered, e.g., "112")
+	$winning_bidder_no = trim($_POST['bidder']);
+	
 	$query = "SELECT u.*,b.id as bid_id FROM " . $DBPrefix . "bids b
 			LEFT JOIN " . $DBPrefix . "users u ON (b.bidder = u.id)
 			WHERE auction = :auc_id ORDER BY b.bid DESC, b.quantity DESC, b.id DESC";
@@ -218,37 +222,6 @@ else if(isset($_POST['going']) && $_POST['going'] == "3")
 	$num_bids = $db->numrows();
 	if($num_bids > 0){
 		$Winner = $db->result();
-		$floor_user_id = null;
-		// Check if bidder is a numeric ID or a nickname
-		if (is_numeric($_POST['bidder'])) {
-			// It's a user ID
-			$floor_user_id = intval($_POST['bidder']);
-			$query = "SELECT id FROM " . $DBPrefix . "users WHERE id = :user_id LIMIT 1";
-			$params = array();
-			$params[] = array(':user_id', $floor_user_id, 'int');
-			$db->query($query, $params);
-			if ($db->numrows() == 0) {
-				$floor_user_id = null; // Invalid user ID
-			}
-		} else {
-			// It's a nickname, look it up
-			$query = "SELECT id FROM " . $DBPrefix . "users WHERE nick = :nick LIMIT 1";
-			$params = array();
-			$params[] = array(':nick', $_POST['bidder'], 'str');
-			$db->query($query, $params);
-			if ($db->numrows() > 0) {
-				$floor_user = $db->result();
-				$floor_user_id = $floor_user['id'];
-			}
-		}
-		
-		if ($floor_user_id !== null) {
-			$query = "UPDATE " . $DBPrefix . "bids SET bidder = :bidder_id WHERE id = :id";
-			$params = array();
-			$params[] = array(':bidder_id', $floor_user_id, 'int');
-			$params[] = array(':id', $Winner['bid_id'], 'int');
-			$db->query($query, $params);
-		}
 		
 		//Disable Bidder Temp expect floor user.
 		if($Winner['is_floor'] != 1){
@@ -256,7 +229,17 @@ else if(isset($_POST['going']) && $_POST['going'] == "3")
 			$params = array();
 			$params[] = array(':user_id', $Winner['id'], 'int');
 			$db->query($query, $params);
+		}
 	}
+	
+	// Update the winners table to store the "Winning Bidder No" value
+	// This will be displayed as "Winner ID" everywhere
+	if (!empty($winning_bidder_no) && is_numeric($winning_bidder_no)) {
+		$query = "UPDATE " . $DBPrefix . "winners SET winner = :winner_id WHERE auction = :auc_id";
+		$params = array();
+		$params[] = array(':winner_id', intval($winning_bidder_no), 'int');
+		$params[] = array(':auc_id', $_POST['id'], 'int');
+		$db->query($query, $params);
 	}
 	// Run cron according to SETTINGS
 	if ($system->SETTINGS['cron'] == 2)

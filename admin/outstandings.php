@@ -71,20 +71,9 @@ if($row['tax'] ==1 && $row['taxinc'] ==1){
 			$tax_rate = $row1['tax_rate'];
 	$shipping_data = calculate_shipping_data($row, $row['qty'], false);
 	
-	// Get the actual winner from the highest bid (this is what gets updated when admin enters floor bidder)
-	$query_winner = "SELECT b.bidder, u.nick FROM " . $DBPrefix . "bids b
-			LEFT JOIN " . $DBPrefix . "users u ON (b.bidder = u.id)
-			WHERE b.auction = :auc_id ORDER BY b.bid DESC, b.quantity DESC, b.id DESC LIMIT 1";
-	$params_winner = array();
-	$params_winner[] = array(':auc_id', $row['auc_id'], 'int');
-	$db->query($query_winner, $params_winner);
-	$actual_winner_label = $row['winner']; // fallback to winner ID
-	if ($db->numrows() > 0)
-	{
-		$bid_winner = $db->result();
-		// Show the user ID (what was entered/assigned), not the nickname
-		$actual_winner_label = $bid_winner['bidder'];
-	}
+	// Get the "Winning Bidder No" from winners table (this is what admin entered when clicking "Sold")
+	// This is the value that should be displayed as "Winner ID"
+	$actual_winner_label = $row['winner']; // This is the "Winning Bidder No" entered by admin
 	
 // 	echo '<pre>';
 // 	echo $i.' :';
