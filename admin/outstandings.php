@@ -31,17 +31,43 @@ if (isset($_GET['PAGE']) && $_GET['PAGE'] > 1) {
 	$PAGE = 1;
 }
 
-$query = "SELECT COUNT(id) As COUNT FROM " . $DBPrefix . "winners
-		WHERE paid = 0 AND winner = :winner_id";
+// Find auctions where this user is the highest bidder (from bids table)
+// This works even when "Winning Bidder No" has been set in winners table
+// We need to find the highest bid for each auction and check if the bidder matches
+$query = "SELECT COUNT(DISTINCT w.id) As COUNT FROM " . $DBPrefix . "winners w
+		WHERE w.paid = 0 
+		AND EXISTS (
+			SELECT 1 FROM " . $DBPrefix . "bids b1
+			WHERE b1.auction = w.auction
+			AND b1.bidder = :user_id
+			AND b1.id = (
+				SELECT b2.id FROM " . $DBPrefix . "bids b2
+				WHERE b2.auction = w.auction
+				ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
+				LIMIT 1
+			)
+		)";
 $params = array();
-$params[] = array(':winner_id', $_GET['id'], 'int');
+$params[] = array(':user_id', $_GET['id'], 'int');
 $db->query($query, $params);
 $TOTALAUCTIONS = $db->result('COUNT');
 $PAGES = ($TOTALAUCTIONS == 0) ? 1 : ceil($TOTALAUCTIONS / $system->SETTINGS['perpage']);
+
 $query = "SELECT w.id, w.winner, w.tax_id, w.tax_fee, w.auc_title, a.tax, a.taxinc, w.auc_shipping_cost, a.shipping_cost, w.bid, w.buyer_fee, w.qty, w.auction As auc_id, a.additional_shipping_cost, a.shipping, u.nick AS winner_nick FROM " . $DBPrefix . "winners w
 		JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
 		LEFT JOIN " . $DBPrefix . "users u ON (u.id = w.winner)
-		WHERE w.paid = 0 AND w.winner = :user_id
+		WHERE w.paid = 0 
+		AND EXISTS (
+			SELECT 1 FROM " . $DBPrefix . "bids b1
+			WHERE b1.auction = w.auction
+			AND b1.bidder = :user_id
+			AND b1.id = (
+				SELECT b2.id FROM " . $DBPrefix . "bids b2
+				WHERE b2.auction = w.auction
+				ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
+				LIMIT 1
+			)
+		)
 		LIMIT :OFFSET, :per_page";
 $params = array();
 $params[] = array(':user_id', $_GET['id'], 'int');
