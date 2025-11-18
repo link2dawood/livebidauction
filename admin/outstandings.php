@@ -18,15 +18,17 @@ include '../common.php';
 include INCLUDE_PATH . 'functions_admin.php';
 include 'loggedin.inc.php';
 
-if (!isset($_GET['PAGE']) || $_GET['PAGE'] == 1)
-{
-	$OFFSET = 0;
-	$PAGE = 1;
-}
-else
-{
+// Handle both PAGE and offset parameters
+if (isset($_GET['PAGE']) && $_GET['PAGE'] > 1) {
 	$PAGE = intval($_GET['PAGE']);
 	$OFFSET = ($PAGE - 1) * $system->SETTINGS['perpage'];
+} elseif (isset($_GET['offset'])) {
+	$OFFSET = intval($_GET['offset']);
+	$PAGE = floor($OFFSET / $system->SETTINGS['perpage']) + 1;
+	if ($PAGE < 1) $PAGE = 1;
+} else {
+	$OFFSET = 0;
+	$PAGE = 1;
 }
 
 $query = "SELECT COUNT(id) As COUNT FROM " . $DBPrefix . "winners
@@ -120,7 +122,7 @@ if ($PAGES > 1)
 	while ($COUNTER <= $PAGES && $COUNTER < ($PAGE + 6))
 	{
 		$template->assign_block_vars('pages', array(
-				'PAGE' => ($PAGE == $COUNTER) ? '<b>' . $COUNTER . '</b>' : '<a href="' . $system->SETTINGS['siteurl'] . 'outstanding.php?PAGE=' . $COUNTER . '"><u>' . $COUNTER . '</u></a>'
+				'PAGE' => ($PAGE == $COUNTER) ? '<b>' . $COUNTER . '</b>' : '<a href="' . $system->SETTINGS['siteurl'] . 'admin/outstandings.php?id=' . $_GET['id'] . '&PAGE=' . $COUNTER . '"><u>' . $COUNTER . '</u></a>'
 				));
 		$COUNTER++;
 	}
@@ -155,8 +157,8 @@ $template->assign_vars(array(
 		'USER_ID' => $_GET['id'],
 		'HASH' => $_SESSION['WEBID_ADMIN_NUMBER'],
 
-		'PREV' => ($PAGES > 1 && $PAGE > 1) ? '<a href="' . $system->SETTINGS['siteurl'] . 'outstanding.php?PAGE=' . $PREV . '"><u>' . $MSG['5119'] . '</u></a>&nbsp;&nbsp;' : '',
-		'NEXT' => ($PAGE < $PAGES) ? '<a href="' . $system->SETTINGS['siteurl'] . 'outstanding.php?PAGE=' . $NEXT . '"><u>' . $MSG['5120'] . '</u></a>' : '',
+		'PREV' => ($PAGES > 1 && $PAGE > 1) ? '<a href="' . $system->SETTINGS['siteurl'] . 'admin/outstandings.php?id=' . $_GET['id'] . '&PAGE=' . $PREV . '"><u>' . $MSG['5119'] . '</u></a>&nbsp;&nbsp;' : '',
+		'NEXT' => ($PAGE < $PAGES) ? '<a href="' . $system->SETTINGS['siteurl'] . 'admin/outstandings.php?id=' . $_GET['id'] . '&PAGE=' . $NEXT . '"><u>' . $MSG['5120'] . '</u></a>' : '',
 		'PAGE' => $PAGE,
 		'PAGES' => $PAGES
 		));
