@@ -206,16 +206,46 @@ $db->query($query, $params);
 
 while ($row = $db->fetch())
 {
-$query = "SELECT SUM(tax_fee) As tax, SUM(bid) As bid, COUNT(id) As COUNT FROM " . $DBPrefix . "winners
-		WHERE paid = 0 AND winner = :winner_id";
-$params = array();
-$params[] = array(':winner_id', $row['id'], 'int');
-$db->query($query, $params);
-$result_win = $db->result();
-$TOTALAUCTIONS = $result_win['COUNT'];
-$bids = 0;
-if($system->SETTINGS['fee_type'] != 2)
-$bids = $result_win['bid'] + $result_win['tax'];
+	// Find unpaid winners where this user is the highest bidder (same logic as outstandings.php)
+	$query = "SELECT w.id, w.bid, w.qty, w.tax_fee, w.auc_shipping_cost, a.tax, a.taxinc, a.shipping_cost, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
+			JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
+			WHERE w.paid = 0 
+			AND EXISTS (
+				SELECT 1 FROM " . $DBPrefix . "bids b1
+				WHERE b1.auction = w.auction
+				AND b1.bidder = :user_id
+				AND b1.id = (
+					SELECT b2.id FROM " . $DBPrefix . "bids b2
+					WHERE b2.auction = w.auction
+					ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
+					LIMIT 1
+				)
+			)";
+	$params = array();
+	$params[] = array(':user_id', $row['id'], 'int');
+	$db->query($query, $params);
+	
+	$TOTALAUCTIONS = $db->numrows();
+	$totalOutstanding = 0;
+	
+	while ($win_row = $db->fetch()) {
+		// Calculate tax if needed (same logic as outstandings.php)
+		if ($win_row['tax'] == 1 && $win_row['taxinc'] == 1) {
+			$tax_fee = $win_row['bid'] * 0.0875;
+		} else {
+			$tax_fee = $win_row['tax_fee'];
+		}
+		
+		// Calculate buyer fee (15%) - same as outstandings.php
+		$buyer_fee = $win_row['bid'] * 0.15;
+		
+		// Calculate shipping (same function call as outstandings.php)
+		$shipping_data = calculate_shipping_data($win_row, $win_row['qty'], false);
+		$shipping_total = $shipping_data['shipping_total'];
+		
+		// Calculate total outstanding (same formula as outstandings.php)
+		$totalOutstanding += ($win_row['bid'] * $win_row['qty']) + $shipping_total + $buyer_fee + $tax_fee;
+	}
 
 	$template->assign_block_vars('users', array(
 			'ID' => $row['id'],
@@ -227,8 +257,8 @@ $bids = $result_win['bid'] + $result_win['tax'];
 			'SUSPENDED' => $row['suspended'],
 			'TEMP_SUSPENDED' => $row['temp_suspended'],
 			'TOTALAUCTIONS' => $TOTALAUCTIONS,
-			'BALANCE' => $system->print_money($row['balance'] - $bids),
-			'BALANCE_CLEAN' => $row['balance'],
+			'BALANCE' => $system->print_money($totalOutstanding),
+			'BALANCE_CLEAN' => $totalOutstanding,
 			'BG' => $bg
 			));
 	$bg = ($bg == '') ? 'class="bg"' : '';

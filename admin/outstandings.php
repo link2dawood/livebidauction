@@ -154,27 +154,8 @@ if ($PAGES > 1)
 	}
 }
 
-$query = "SELECT balance FROM " . $DBPrefix . "users WHERE id = :user_id";
-$params = array();
-$params[] = array(':user_id', $_GET['id'], 'int');
-$db->query($query, $params);
-$user_balance = $db->result('balance');
-$query = "SELECT SUM(tax_fee) As tax,SUM(buyer_fee) as BUYER_FEE, SUM(bid) As bid,SUM(auc_shipping_cost) as shipping_cost, COUNT(id) As COUNT FROM " . $DBPrefix . "winners
-		WHERE paid = 0 AND winner = :winner_id";
-// 		echo 'nomi';
-// 		die();
-$params = array();
-$params[] = array(':winner_id', $_GET['id'], 'int');
-$db->query($query, $params);
-$result_win = $db->result();
-$TOTALAUCTIONS = $result_win['COUNT'];
-if($system->SETTINGS['fee_type'] == 1){
-$user_balance =$user_balance + $result_win['bid'] + $result_win['tax'] + $result_win['shipping_cost'];
-} else { 
-	$user_balance =$result_win['BUYER_FEE'] + $result_win['bid'] + $result_win['tax'] + $result_win['shipping_cost'];
-}
-// print_r($totalNomiamount);
-// die();
+// $totalNomiamount is already calculated in the loop above with the same logic as listusers.php
+// This ensures both pages show the same outstanding balance
 $_SESSION['INVOICE_RETURN'] = 'admin/outstandings.php';
 $template->assign_vars(array(
 		'USER_BALANCE' => $system->print_money($totalNomiamount),
