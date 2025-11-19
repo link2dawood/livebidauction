@@ -207,7 +207,12 @@ $db->query($query, $params);
 while ($row = $db->fetch())
 {
 	// Find unpaid winners where this user is the highest bidder (same logic as outstandings.php)
-	$query = "SELECT w.id, w.bid, w.qty, w.tax_fee, w.auc_shipping_cost, a.tax, a.taxinc, a.shipping_cost, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
+	// Get tax info first (same as outstandings.php)
+	$query_tax = "SELECT * FROM " . $DBPrefix . "tax WHERE id = 2";
+	$db->direct_query($query_tax);
+	$tax_info = $db->result();
+	
+	$query_balance = "SELECT w.id, w.bid, w.qty, w.tax_fee, w.auc_shipping_cost, a.tax, a.taxinc, a.shipping_cost, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
 			JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
 			WHERE w.paid = 0 
 			AND EXISTS (
@@ -221,30 +226,34 @@ while ($row = $db->fetch())
 					LIMIT 1
 				)
 			)";
-	$params = array();
-	$params[] = array(':user_id', $row['id'], 'int');
-	$db->query($query, $params);
+	$params_balance = array();
+	$params_balance[] = array(':user_id', $row['id'], 'int');
+	$db->query($query_balance, $params_balance);
 	
 	$TOTALAUCTIONS = $db->numrows();
 	$totalOutstanding = 0;
 	
 	while ($win_row = $db->fetch()) {
+		// Set tax_id to 2 (same as outstandings.php)
+		$win_row['tax_id'] = 2;
+		
 		// Calculate tax if needed (same logic as outstandings.php)
 		if ($win_row['tax'] == 1 && $win_row['taxinc'] == 1) {
-			$tax_fee = $win_row['bid'] * 0.0875;
+			$win_row['tax_fee'] = $win_row['bid'] * 0.0875;
 		} else {
-			$tax_fee = $win_row['tax_fee'];
+			if (!isset($win_row['tax_fee']) || empty($win_row['tax_fee'])) {
+				$win_row['tax_fee'] = 0;
+			}
 		}
 		
 		// Calculate buyer fee (15%) - same as outstandings.php
-		$buyer_fee = $win_row['bid'] * 0.15;
+		$win_row['buyer_fee'] = $win_row['bid'] * 0.15;
 		
 		// Calculate shipping (same function call as outstandings.php)
 		$shipping_data = calculate_shipping_data($win_row, $win_row['qty'], false);
-		$shipping_total = $shipping_data['shipping_total'];
 		
 		// Calculate total outstanding (same formula as outstandings.php)
-		$totalOutstanding += ($win_row['bid'] * $win_row['qty']) + $shipping_total + $buyer_fee + $tax_fee;
+		$totalOutstanding += ($win_row['bid'] * $win_row['qty']) + $shipping_data['shipping_total'] + $win_row['buyer_fee'] + $win_row['tax_fee'];
 	}
 
 	$template->assign_block_vars('users', array(
