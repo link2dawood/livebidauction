@@ -207,7 +207,7 @@ $db->query($query, $params);
 while ($row = $db->fetch())
 {
 	// Find unpaid winners where this user is the highest bidder (same logic as outstandings.php)
-	$query_balance = "SELECT w.id, w.bid, w.qty, w.tax_fee, w.auc_shipping_cost, a.tax, a.taxinc, a.shipping_cost, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
+	$query_balance = "SELECT w.id, w.bid, w.qty, w.tax_id, w.tax_fee, w.buyer_fee, w.auc_shipping_cost, a.tax, a.taxinc, a.shipping_cost, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
 			JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
 			WHERE w.paid = 0 
 			AND EXISTS (
@@ -235,22 +235,19 @@ while ($row = $db->fetch())
 			// Set tax_id to 2 (same as outstandings.php)
 			$win_row['tax_id'] = 2;
 			
-			// Calculate tax if needed (same logic as outstandings.php)
+			// Calculate tax if needed (exact same logic as outstandings.php)
 			if ($win_row['tax'] == 1 && $win_row['taxinc'] == 1) {
 				$win_row['tax_fee'] = $win_row['bid'] * 0.0875;
-			} else {
-				if (!isset($win_row['tax_fee']) || empty($win_row['tax_fee'])) {
-					$win_row['tax_fee'] = 0;
-				}
 			}
+			// If tax is not included, use the database tax_fee value directly (don't set to 0)
 			
-			// Calculate buyer fee (15%) - same as outstandings.php
+			// Calculate buyer fee (15%) - same as outstandings.php (overrides DB value)
 			$win_row['buyer_fee'] = $win_row['bid'] * 0.15;
 			
 			// Calculate shipping (same function call as outstandings.php)
 			$shipping_data = calculate_shipping_data($win_row, $win_row['qty'], false);
 			
-			// Calculate total outstanding (same formula as outstandings.php)
+			// Calculate total outstanding (exact same formula as outstandings.php)
 			$totalOutstanding += ($win_row['bid'] * $win_row['qty']) + $shipping_data['shipping_total'] + $win_row['buyer_fee'] + $win_row['tax_fee'];
 		}
 	}
