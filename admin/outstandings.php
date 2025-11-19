@@ -53,38 +53,13 @@ $db->query($query, $params);
 $TOTALAUCTIONS = $db->result('COUNT');
 $PAGES = ($TOTALAUCTIONS == 0) ? 1 : ceil($TOTALAUCTIONS / $system->SETTINGS['perpage']);
 
-// First, calculate the TOTAL outstanding balance from ALL unpaid winners (no pagination)
-// This matches the calculation in listusers.php
-$query_total = "SELECT w.id, w.bid, w.qty, w.tax_id, w.tax_fee, w.buyer_fee, w.auc_shipping_cost, a.tax, a.taxinc, a.shipping_cost, a.additional_shipping_cost, a.shipping FROM " . $DBPrefix . "winners w
-		JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
-		WHERE w.paid = 0 
-		AND EXISTS (
-			SELECT 1 FROM " . $DBPrefix . "bids b1
-			WHERE b1.auction = w.auction
-			AND b1.bidder = :user_id
-			AND b1.id = (
-				SELECT b2.id FROM " . $DBPrefix . "bids b2
-				WHERE b2.auction = w.auction
-				ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
-				LIMIT 1
-			)
-		)";
-$params_total = array();
-$params_total[] = array(':user_id', $_GET['id'], 'int');
-$db->query($query_total, $params_total);
-$totalNomiamount = 0;
-$total_rows = $db->fetchall();
-if (!empty($total_rows)) {
-	foreach ($total_rows as $total_row) {
-		$total_row['tax_id'] = 2;
-		if ($total_row['tax'] == 1 && $total_row['taxinc'] == 1) {
-			$total_row['tax_fee'] = $total_row['bid'] * 0.0875;
-		}
-		$total_row['buyer_fee'] = $total_row['bid'] * 0.15;
-		$shipping_data_total = calculate_shipping_data($total_row, $total_row['qty'], false);
-		$totalNomiamount += ($total_row['bid'] * $total_row['qty']) + $shipping_data_total['shipping_total'] + $total_row['buyer_fee'] + $total_row['tax_fee'];
-	}
-}
+// Get balance from users table (balance column) - this matches listusers.php
+$query_balance = "SELECT balance FROM " . $DBPrefix . "users WHERE id = :user_id";
+$params_balance = array();
+$params_balance[] = array(':user_id', $_GET['id'], 'int');
+$db->query($query_balance, $params_balance);
+$user_balance_result = $db->result();
+$totalNomiamount = isset($user_balance_result['balance']) ? $user_balance_result['balance'] : 0;
 
 // Now get the paginated results for display
 $query = "SELECT w.id, w.winner, w.tax_id, w.tax_fee, w.auc_title, a.tax, a.taxinc, w.auc_shipping_cost, a.shipping_cost, w.bid, w.buyer_fee, w.qty, w.auction As auc_id, a.additional_shipping_cost, a.shipping, u.nick AS winner_nick FROM " . $DBPrefix . "winners w
@@ -187,8 +162,7 @@ if ($PAGES > 1)
 	}
 }
 
-// $totalNomiamount is calculated separately above from ALL unpaid winners (no pagination)
-// This matches the calculation in listusers.php and ensures both pages show the same total balance
+// $totalNomiamount comes from the users table balance column - this matches listusers.php
 $_SESSION['INVOICE_RETURN'] = 'admin/outstandings.php';
 $template->assign_vars(array(
 		'USER_BALANCE' => $system->print_money($totalNomiamount),
