@@ -38,13 +38,13 @@ $query = "SELECT COUNT(DISTINCT w.id) As COUNT FROM " . $DBPrefix . "winners w
 		AND (
 			w.winner = :user_id1
 			OR EXISTS (
-				SELECT 1 FROM " . $DBPrefix . "bids b1
-				WHERE b1.auction = w.auction
-				AND b1.bidder = :user_id2
-				AND b1.id = (
-					SELECT b2.id FROM " . $DBPrefix . "bids b2
-					WHERE b2.auction = w.auction
-					ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
+				SELECT 1 FROM " . $DBPrefix . "bids b_top
+				WHERE b_top.auction = w.auction
+				AND b_top.bidder = :user_id2
+				AND b_top.id = (
+					SELECT b_win.id FROM " . $DBPrefix . "bids b_win
+					WHERE b_win.auction = w.auction
+					ORDER BY b_win.bid DESC, b_win.quantity DESC, b_win.id DESC
 					LIMIT 1
 				)
 			)
@@ -73,25 +73,25 @@ $query = "SELECT w.id, w.winner, w.tax_id, w.tax_fee, w.auc_title, a.tax, a.taxi
 		AND (
 			w.winner = :user_id1
 			OR EXISTS (
-				SELECT 1 FROM " . $DBPrefix . "bids b1
-				WHERE b1.auction = w.auction
-				AND b1.bidder = :user_id2
-				AND b1.id = (
-					SELECT b2.id FROM " . $DBPrefix . "bids b2
-					WHERE b2.auction = w.auction
-					ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
+				SELECT 1 FROM " . $DBPrefix . "bids b_top
+				WHERE b_top.auction = w.auction
+				AND b_top.bidder = :user_id2
+				AND b_top.id = (
+					SELECT b_win.id FROM " . $DBPrefix . "bids b_win
+					WHERE b_win.auction = w.auction
+					ORDER BY b_win.bid DESC, b_win.quantity DESC, b_win.id DESC
 					LIMIT 1
 				)
 			)
 		)
 		ORDER BY w.id DESC
 		LIMIT :OFFSET, :per_page";
-$params = array();
-$params[] = array(':user_id1', $_GET['id'], 'int');
-$params[] = array(':user_id2', $_GET['id'], 'int');
-$params[] = array(':OFFSET', $OFFSET, 'int');
-$params[] = array(':per_page', $system->SETTINGS['perpage'], 'int');
-$db->query($query, $params);
+$params_display = array();
+$params_display[] = array(':user_id1', $_GET['id'], 'int');
+$params_display[] = array(':user_id2', $_GET['id'], 'int');
+$params_display[] = array(':OFFSET', $OFFSET, 'int');
+$params_display[] = array(':per_page', $system->SETTINGS['perpage'], 'int');
+$db->query($query, $params_display);
 // $i=0;
 while ($row = $db->fetch())
 {
