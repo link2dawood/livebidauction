@@ -30,10 +30,12 @@ if (isset($_GET['PAGE']) && $_GET['PAGE'] > 1) {
 	$OFFSET = 0;
 	$PAGE = 1;
 }
+// Ensure OFFSET is not negative
+if ($OFFSET < 0) $OFFSET = 0;
 
 // Find all unpaid auctions for this user
 // Match if: (1) admin set this user as winner (w.winner = user_id) OR (2) user is highest bidder
-$query = "SELECT COUNT(DISTINCT w.id) As COUNT FROM " . $DBPrefix . "winners w
+$query = "SELECT COUNT(w.id) As COUNT FROM " . $DBPrefix . "winners w
 		WHERE w.paid = 0 
 		AND (
 			w.winner = :user_id1
