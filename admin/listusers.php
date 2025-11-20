@@ -207,17 +207,21 @@ $db->query($query, $params);
 while ($row = $db->fetch())
 {
 	// Count unpaid winners for this user
+	// Match if: (1) admin set this user as winner (w.winner = user_id) OR (2) user is highest bidder
 	$query_count = "SELECT COUNT(DISTINCT w.id) As COUNT FROM " . $DBPrefix . "winners w
 			WHERE w.paid = 0 
-			AND EXISTS (
-				SELECT 1 FROM " . $DBPrefix . "bids b1
-				WHERE b1.auction = w.auction
-				AND b1.bidder = :user_id
-				AND b1.id = (
-					SELECT b2.id FROM " . $DBPrefix . "bids b2
-					WHERE b2.auction = w.auction
-					ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
-					LIMIT 1
+			AND (
+				w.winner = :user_id
+				OR EXISTS (
+					SELECT 1 FROM " . $DBPrefix . "bids b1
+					WHERE b1.auction = w.auction
+					AND b1.bidder = :user_id
+					AND b1.id = (
+						SELECT b2.id FROM " . $DBPrefix . "bids b2
+						WHERE b2.auction = w.auction
+						ORDER BY b2.bid DESC, b2.quantity DESC, b2.id DESC
+						LIMIT 1
+					)
 				)
 			)";
 	$params_count = array();
