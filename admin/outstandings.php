@@ -35,6 +35,7 @@ if ($OFFSET < 0) $OFFSET = 0;
 
 // Find all unpaid auctions for this user
 // Match if: (1) admin set this user as winner (w.winner = user_id) OR (2) user is highest bidder
+// Don't JOIN with auctions in COUNT - just count all unpaid winners for this user
 $query = "SELECT COUNT(w.id) As COUNT FROM " . $DBPrefix . "winners w
 		WHERE w.paid = 0 
 		AND (
@@ -68,8 +69,9 @@ $totalNomiamount = isset($user_balance_result['balance']) ? $user_balance_result
 
 // Now get the paginated results for display
 // Match if: (1) admin set this user as winner (w.winner = user_id) OR (2) user is highest bidder
+// Use LEFT JOIN for auctions to ensure we get all winner records even if auction doesn't exist
 $query = "SELECT w.id, w.winner, w.tax_id, w.tax_fee, w.auc_title, a.tax, a.taxinc, w.auc_shipping_cost, a.shipping_cost, w.bid, w.buyer_fee, w.qty, w.auction As auc_id, a.additional_shipping_cost, a.shipping, u.nick AS winner_nick FROM " . $DBPrefix . "winners w
-		JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
+		LEFT JOIN " . $DBPrefix . "auctions a ON (a.id = w.auction)
 		LEFT JOIN " . $DBPrefix . "users u ON (u.id = w.winner)
 		WHERE w.paid = 0 
 		AND (
