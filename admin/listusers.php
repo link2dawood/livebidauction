@@ -211,11 +211,11 @@ while ($row = $db->fetch())
 	$query_count = "SELECT COUNT(DISTINCT w.id) As COUNT FROM " . $DBPrefix . "winners w
 			WHERE w.paid = 0 
 			AND (
-				w.winner = :user_id
+				w.winner = :user_id1
 				OR EXISTS (
 					SELECT 1 FROM " . $DBPrefix . "bids b1
 					WHERE b1.auction = w.auction
-					AND b1.bidder = :user_id
+					AND b1.bidder = :user_id2
 					AND b1.id = (
 						SELECT b2.id FROM " . $DBPrefix . "bids b2
 						WHERE b2.auction = w.auction
@@ -225,7 +225,8 @@ while ($row = $db->fetch())
 				)
 			)";
 	$params_count = array();
-	$params_count[] = array(':user_id', $row['id'], 'int');
+	$params_count[] = array(':user_id1', $row['id'], 'int');
+	$params_count[] = array(':user_id2', $row['id'], 'int');
 	$db->query($query_count, $params_count);
 	$result_count = $db->result();
 	$TOTALAUCTIONS = $result_count['COUNT'];
