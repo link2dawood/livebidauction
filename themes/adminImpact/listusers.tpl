@@ -120,7 +120,7 @@ $(document).ready(function(){
 						    <div class="btn-group" role="group" aria-label="...">
                                 <a class="btn btn-primary btn-xs" href="edituser.php?userid={users.ID}&offset={PAGE}" title="{L_298}"><i class="fa fa-edit"></i></a>
                                 <a class="btn btn-danger btn-xs" href="deleteuser.php?id={users.ID}&offset={PAGE}" title="{L_008}"><i class="fa fa-trash"></i> </a>
-                                <a class="btn btn-info btn-xs" href="outstandings.php?id={users.ID}&offset={PAGE}" title="View Outstandings"><i class="fa fa-eye"></i> </a>
+                                <a class="btn btn-info btn-xs" href="outstandings.php?id={users.ID}" title="View Outstandings"><i class="fa fa-eye"></i> </a>
                                 
 	<!-- IF users.SUSPENDED eq 0 -->
 								<a class="btn btn-warning btn-xs" href="excludeuser.php?id={users.ID}&offset={PAGE}" title="{L_305}"><i class="fa fa-lock"></i></a>
